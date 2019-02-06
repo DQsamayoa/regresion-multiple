@@ -1,5 +1,5 @@
-# Regresión Mútiple y otras técnicas multivaraidas
-==================================================
+Regresión Mútiple y otras técnicas multivaraidas
+===================================
 
 Repositorio para los ejercicios de regresión múltiple
 
