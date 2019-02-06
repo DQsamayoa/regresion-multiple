@@ -1,6 +1,6 @@
 # Regresión Mútiple y otras técnicas multivaraidas
-Repositorio para los ejercicios de regresión múltiple
 ===================================
+Repositorio para los ejercicios de regresión múltiple
 
 # Objetivos
 
@@ -56,7 +56,9 @@ Para poder compilar el documento Tarea_XX.Rmd será necesario tener las siguient
 
 # Latex
 
-También será necesario contar con Latex instalado en la computadora. En caso de no tenerlo, usar los siguientes comandos en R
+También será necesario contar con Latex instalado en la computadora. En caso de no tenerlo, una opción es usar **tinytex** el cual hace una instalación minima de latex y conforme se necesite va administrando los paquetes que se necesitan de latex.
+
+En caso de querer instalar tinytex, usar los siguientes comandos en R:
 
 ```r
 # Instalar primero la libreria tinytex
