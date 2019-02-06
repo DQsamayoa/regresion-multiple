@@ -40,7 +40,7 @@ donde:
 - El archivo **tXX.pdf** hace referencia al documento con los ejercicios a realizar en la tarea número XX
 - El archivo **Tarea_XX.Rmd** hace referencia al documento con las soluciones desarrolladas por nosotros para la tarea número XX
 - El archivo **Tarea_XX.pdf** hace referencia al archivo pdf generado al compilar el Rmd previo
-- El archivo **header.tex** contiene las librerias y definiciones que se van a utilizar para compilar el pdf previo
+- El archivo **header.tex** contiene las librerias y definiciones que se van a utilizar para compilar el pdf previo. En este archivo es necesario modificar para incluir el número de la tarea respectivo en el "header" del documento
 
 Dentro de la carpeta "Proyecto_Final" vamos a incluir todo lo relacionado con el proyecto conforme vayamos avanzando.
 
