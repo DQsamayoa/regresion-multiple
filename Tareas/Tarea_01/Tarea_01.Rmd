@@ -1,0 +1,368 @@
+---
+title: "Regresión múltiple y otras técnicas multivariadas"
+subtitle: "Tarea 01"
+author:
+  - "Rivera Torres Francisco de Jesús"
+  - "Rodríguez Maya Jorge Daniel"
+  - "Samayoa Donado Víctor Augusto"
+  - "Trujillo Bariios Georgina"
+date: "Febrero 06, 2019"
+output:
+  pdf_document:
+    toc: false
+    number_sections: false
+    fig_caption: true
+    highlight: kate
+    df_print: kable
+    includes:
+      in_header: tex/header.tex
+fontsize: 11pt
+documentclass: article
+classoption: twoside
+fig_align: "center"
+---
+
+```{r setup, include = FALSE, eval = TRUE}
+knitr::opts_chunk$set(echo = FALSE, eval = TRUE, fig.height = 3)
+
+# Se cargan las librerias a utilizar
+library(tidyverse)
+library(readxl)
+library(scales)
+library(grid)
+library(kableExtra)
+library(latex2exp)
+library(HistData)
+
+# Se cargan los datos de Galton
+data("Galton")
+
+# Se convierten las mediciones de pulgadas a centimetros
+Galton2 <- 2.54*Galton
+```
+
+# Ejercicio 1
+Validar la primera de las afirmaciones de Galton:
+
+> *Los hijos de padres altos no son tan altos como sus padres.*
+
+Utilizar el conjunto de datos **Galton** del paquete HistData de R. Suponer que los padres altos son aquellos que miden más de 176 cm. Utilizar $\alpha = 0.1$.
+
+Primero, se procede a realizar una prueba de hipótesis para la igualdad de varianzas (ya que necesitamos saber si la comparación de las medias se realizará con varianzas desconocidas iguales o distintas),
+
+El planteamiento de hipótesis para igualdad de varianzas está dado por:
+\begin{align*}
+H_0 : \dfrac{\sigma_y^2}{\sigma_x^2} = 1 \text{ vs. } H_1 : \dfrac{\sigma_y^2}{\sigma_x^2} \neq 1
+\end{align*}
+donde la región de rechazo está dada por
+\begin{align*}
+C = \left\lbrace x \in X \left| \left( \dfrac{\dfrac{1}{n_1} \sum_{i = 1}^{n_1} (y_i - \mu_y)^2}{\dfrac{1}{n_2} \sum_{i = 1}^{n_2} (x_i - \mu_x)^2} \right) > F^{1 - \nicefrac{\alpha}{2}}_{(n_1-1, n_2-1)} \right. \right\rbrace
+\end{align*}
+donde $\alpha = 0.1$ para una confianza del $90\%$ y n1 = n2 = `r nrow(Galton)`.
+
+
+Calculando el estadístico se tiene que .
+```{r, echo = TRUE}
+alpha <- 0.1
+
+datos <- Galton2 %>% 
+         filter(parent > 176)
+
+n1 <- nrow(datos)
+n2 <- nrow(datos)
+
+est.f <- qf(1 - alpha, df1 = n1 - 1, df2 = n2 - 1)
+```
+obteniendo así un valor de $F^{1-\nicefrac{\alpha}{2}}_{(n_1-1, n_2-1)} = `r est.f`$.
+
+Realizando los cálculos para la región de rechazo, se obtiene que 
+```{r, echo = TRUE}
+x <- datos$parent
+y <- datos$child
+
+var_child <- sum((y - mean(y))^2)/n1
+var_parent <- sum((x - mean(x))^2)/n2
+
+f <- var_child/var_parent
+```
+\begin{align*}
+\left( \dfrac{\dfrac{1}{n_1} \sum_{i = 1}^{n_1} (y_i - \mu_y)^2}{\dfrac{1}{n_2} \sum_{i = 1}^{n_2} (x_i - \mu_x)^2} \right) = `r f`
+\end{align*}
+
+En este caso observamos que:
+\begin{align*}
+`r f` = \left( \dfrac{\dfrac{1}{n_1} \sum_{i = 1}^{n_1} (y_i - \mu_y)^2}{\dfrac{1}{n_2} \sum_{i = 1}^{n_2} (x_i - \mu_x)^2} \right) > F^{1-\nicefrac{\alpha}{2}}_{(n_1-1, n_2-1)} = `r est.f`
+\end{align*}
+por lo tanto se rechaza la hipótesis nula de que ambas poblaciones tienen varianza igual. Es decir, consideramos que las poblaciones (padres e hijos) tienen varianza distinta.
+
+Con lo anterior, se procede a realizar una prueba de hipótesis unilateral (de una cola), para las medias de ambas poblaciones (padres e hijos).
+
+```{r, echo = TRUE}
+t.test(x, y, alternative = "greater", paired = FALSE,
+       conf.level = 0.9, var.equal = FALSE)
+```
+
+Lo anterior nos indica que, con una cofianza del $90\%$, podemos afirmar que la media de los padres $\left(\mu_{\mathrm{parent}} = `r mean(x)` \right)$ es mayor que la media de los hijos $\left(\mu_{\mathrm{child}} = `r mean(y)` \right)$.
+
+# Ejercicio 2
+Repetir el ejercicio anterior para validar la segunda afirmación de Galton:
+
+> *Los hijos de padres bajos no son tan bajos como sus padres.*
+
+Suponer que los padres bajos son aquellos que miden menos de 172 cm.
+
+Procedemos de una manera enteramente análoga al ejercicio anterior, pero ahora lo hacemos solamente para los datos asociados a los padres "bajos" (menores a 172 cm).
+
+Calculando el estadístico se tiene que .
+```{r, echo = TRUE}
+alpha <- 0.1
+
+datos <- Galton2 %>% 
+         filter(parent < 172)
+
+n1 <- nrow(datos)
+n2 <- nrow(datos)
+
+est.f <- qf(1 - alpha, df1 = n1 - 1, df2 = n2 - 1)
+```
+obteniendo así un valor de $F^{1-\nicefrac{\alpha}{2}}_{(n_1-1, n_2-1)} = `r est.f`$.
+
+Realizando los cálculos para la región de rechazo, se obtiene que 
+```{r, echo = TRUE}
+x <- datos$parent
+y <- datos$child
+
+var_child <- sum((y - mean(y))^2)/n1
+var_parent <- sum((x - mean(x))^2)/n2
+
+f <- var_child/var_parent
+```
+\begin{align*}
+\left( \dfrac{\dfrac{1}{n_1} \sum_{i = 1}^{n_1} (y_i - \mu_y)^2}{\dfrac{1}{n_2} \sum_{i = 1}^{n_2} (x_i - \mu_x)^2} \right) = `r f`
+\end{align*}
+
+En este caso observamos que:
+\begin{align*}
+`r f` = \left( \dfrac{\dfrac{1}{n_1} \sum_{i = 1}^{n_1} (y_i - \mu_y)^2}{\dfrac{1}{n_2} \sum_{i = 1}^{n_2} (x_i - \mu_x)^2} \right) > F^{1-\nicefrac{\alpha}{2}}_{(n_1-1, n_2-1)} = `r est.f`
+\end{align*}
+por lo tanto se rechaza la hipótesis nula de que ambas poblaciones tienen varianza igual. Es decir, consideramos que las poblaciones (padres e hijos) tienen varianza distinta.
+
+Con lo anterior, se procede a realizar una prueba de hipótesis unilateral (de una cola), para las medias de ambas poblaciones (padres e hijos).
+
+```{r, echo = TRUE}
+t.test(x, y, alternative = "less", paired = FALSE,
+       conf.level = 0.9, var.equal = FALSE)
+```
+
+Lo anterior nos indica que, con una cofianza del $90\%$, podemos afirmar que la media de los padres $\left(\mu_{\mathrm{parent}} = `r mean(x)` \right)$ es menor que la media de los hijos $\left(\mu_{\mathrm{child}} = `r mean(y)` \right)$.
+
+# Ejercicio 3
+Utilizar las expresiones obtenidas en clase para calcular las estimaciones de $\beta_0, \beta_1$ y $\sigma^2$ con el conjunto de datos de estaturas de Galton.
+
+En la clase se obtuvieron las siguientes expresiones para los estimadores del módelo de regresión lineal simple:
+\begin{align}
+\hat{\beta}_0 = \bar{y} - \dfrac{S_{xy}}{S_{xx}}\bar{x}, \qquad \hat{\beta}_1 = \dfrac{S_{xy}}{S_{xx}} \qquad \text{y} \qquad \hat{\sigma}^2_{\mathrm{MCO}} = \dfrac{1}{n - 2} \sum_{i = 1}^n \left(y_i - \hat{y}_i \right)^2
+\end{align}
+
+Para el caso de los datos de estaturas de Galton, se utilizará como varaible no aleatoria ($X$) la estatura de los padres y como variable aleatoria continua ($Y$) la estatura de los hijos. Obteniendo así, los siguientes valores de los estimadores:
+
+```{r}
+rls <- function(x, y) {
+  # Función que calcula los estimadores de RLS
+  x.bar <- mean(x, na.rm = TRUE)
+  y.bar <- mean(y, na.rm = TRUE)
+  S.xx <- sum((x - x.bar)^2, na.rm = TRUE)
+  S.xy <- sum((x - x.bar) * (y - y.bar), na.rm = TRUE)
+  
+  # Se calculan los estimadores beta0 y beta1
+  b0.hat <- y.bar - x.bar * S.xy / S.xx
+  b1.hat <- S.xy / S.xx
+  
+  # Se calcula el estimador de la varianza
+  y.adj <- b0.hat + b1.hat * x
+  residuos <- y - y.adj
+  sigma2.hat <- sum(residuos^2) / (length(residuos) - 2)
+
+  return(list(b0.hat = b0.hat, b1.hat = b1.hat, sigma2.hat = sigma2.hat))
+}
+
+Galton2 %>% 
+  summarise(b0.hat = rls(parent, child)$b0.hat,
+            b1.hat = rls(parent, child)$b1.hat,
+            sigma2.hat = rls(parent, child)$sigma2.hat) %>% 
+  knitr::kable(format = "latex", booktabs = TRUE, longtable = TRUE, linesep = "", escape = FALSE,
+               col.names = c("$\\hat{\\beta}_0$", "$\\hat{\\beta}_1$", "$\\hat{\\sigma}^2_{\\mathrm{MCO}}$"),
+               caption = "Estimadores del modelo de regresión lineal simple") %>% 
+  kableExtra::row_spec(0, align = "c") %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "repeat_header"))
+```
+
+# Ejercicio 4
+El modelo de regresión lineal simple (RLS) sin intercepto establece que
+\begin{align}
+Y_i = \beta x_i + \varepsilon_i, \qquad i = 1, \ldots, n
+\end{align}
+donde los $\varepsilon_i$ son errores aleatorios, con media $0$ y varianza $\sigma^2$. Obtener el estimador de MCO de $\beta$.
+
+\begin{proof}
+La estimación del valor esperado para el modelo de regresión lineal simple (RLS) sin intercepto está dada por:
+\begin{align*}
+\hat{y}_i = b x_i,\qquad i = 1, \ldots, n
+\end{align*}
+
+Usando el método de mínimos cuadrados ordinarios (MCO), buscamos minimizar la función suma de cuadrados de los residuos en términos del coeficiente $b$, dado en la ecuación anterior.
+\begin{align*}
+Q(b) = \sum_{i = 1}^n e_i^2 = \sum_{i = 1}^n \left(y_i - \hat{y}_i \right)^2 = \sum_{i = 1}^n \left(y_i - b x_i \right)^2
+\end{align*}
+
+Derivando la función anterior se obtiene:
+\begin{align*}
+Q^{\prime} (b)
+&= \sum_{i = 1}^n 2 \left(y_i - b x_i \right) \cdot (- x_i) \\
+&= -2 \sum_{i = 1}^n \left(y_i x_i - b x_i^2 \right) \\
+&= -2 \sum_{i = 1}^n y_i x_i + b \sum_{i = 1}^n x_i^2
+\end{align*}
+
+Para obtener los puntos críticos se iguala la derivada anterior a cero:
+\begin{align*}
+0 &= Q^{\prime} (b) = -2 \sum_{i = 1}^n y_i x_i + b \sum_{i = 1}^n x_i^2  \qquad \text{si y solo si} \qquad b \sum_{i = 1}^n x_i^2 = \sum_{i = 1}^n x_i y_i
+\end{align*}
+por ende
+\begin{align*}
+b &= \dfrac{\sum_{i = 1}^n x_i y_i}{\sum_{i = 1}^n x_i^2}
+\end{align*}
+es un punto crítico para la función suma de cuadrados de los residuos $Q(b)$.
+
+Veríficamos que sea un mínimo usando el criterio de la segunda derivada:
+\begin{align*}
+Q^{\prime \prime} (b) &= -2 \sum_{i = 1}^n \left(- x_i^2 \right) = 2 \sum_{i = 1}^n x_i^2
+\end{align*}
+entonces se tiene que $Q^{\prime \prime} \left( \displaystyle \dfrac{\sum_{i = 1}^n x_i y_i}{\sum_{i = 1}^n x_i^2} \right) > 0$, onteniendo así que es el valor que minimiza la función.
+
+Por lo tanto, se tiene que el estimador MCO de $\beta$ está dado por:
+\begin{align*}
+\hat{\beta} &= \dfrac{\sum_{i = 1}^n x_i y_i}{\sum_{i = 1}^n x_i^2}
+\end{align*}
+\end{proof}
+
+# Ejercicio 5
+Utilizar el conjunto de datos **Galton** del paquete HistData de R para responder lo siguiente.
+
+```{r}
+rls <- function(x, y, intercepto = TRUE) {
+  # Función que calcula los estimadores de RLS
+  
+  # Con intercepto
+  if (intercepto) {
+    x.bar <- mean(x, na.rm = TRUE)
+    y.bar <- mean(y, na.rm = TRUE)
+    S.xx <- sum((x - x.bar)^2, na.rm = TRUE)
+    S.xy <- sum((x - x.bar) * (y - y.bar), na.rm = TRUE)
+    
+    # Se calculan los estimadores beta0 y beta1
+    b0.hat <- y.bar - x.bar * S.xy / S.xx
+    b1.hat <- S.xy / S.xx
+    
+    # Se calcula el estimador de la varianza
+    y.adj <- b0.hat + b1.hat * x
+    residuos <- y - y.adj
+    sigma2.hat <- sum(residuos^2) / (length(residuos) - 2)
+
+    return(list(b0.hat = b0.hat, b1.hat = b1.hat, sigma2.hat = sigma2.hat, residuos = residuos))
+  } else {
+    b.hat <- sum(x * y, na.rm = TRUE) / sum(x^2, na.rm = TRUE)
+    
+    y.adj <- b.hat * x
+    residuos <- y - y.adj
+    
+    return(list(b.hat = b.hat, residuos = residuos))
+  }
+}
+```
+
+## Inciso 5.a
+Ajustar un modelo RLS sin intercepto. Reportar la estimación de $\beta$
+
+Usando la expresión obtenida en el ejercicio 4, se procede a calcular el estimador de $\beta$.
+
+Para el caso de los datos de estaturas de Galton, se utilizará como varaible no aleatoria ($X$) la estatura de los padres y como variable aleatoria continua ($Y$) la estatura de los hijos. Obteniendo así el siguiente valor para el estimador de $\beta$.
+```{r}
+b.hat <- Galton2 %>% 
+         summarise(b.hat = rls(parent, child, intercepto = FALSE)$b.hat) %>% 
+         pull(b.hat)
+```
+
+
+\begin{align*}
+\hat{\beta} &= \dfrac{\sum_{i = 1}^n x_i y_i}{\sum_{i = 1}^n x_i^2} = `r b.hat`
+\end{align*}
+
+## Inciso 5.b
+Si utilizamos la suma de cuadrados de los residuos como criterio de comparación de modelos, ¿qué modelo *ajusta* mejor a los datos? ¿RLS con o sin intercepto?
+
+Utilizando los coeficientes del modelo de regresión lineal simple con intercepto $\left( \hat{\beta}_0, \hat{\beta}_1 \right)$ obtenidos en el ejercicio 3 y el coeficiente del modelo de regresión lineal simple sin intercepto $\left( \hat{\beta} \right)$ obtenido en el ejercicio 5.a, se procede a calcular la suma de los cuadrados de los residuos para cada modelo:
+
+\begin{align*}
+\sum_{i = 1}^n e_i^2 = \sum_{i = 1}^n \left(y_i - \hat{y}_i \right)^2
+\end{align*}
+
+```{r}
+Galton2 %>% 
+  mutate(residuos_int = rls(parent, child, intercepto = TRUE)$residuos,
+         residuos_no_int = rls(parent, child, intercepto = FALSE)$residuos) %>% 
+  summarise(residuos_int2 = sum(residuos_int * residuos_int, na.rm = TRUE),
+            residuos_no_int2 = sum(residuos_no_int * residuos_no_int, na.rm = TRUE)) %>% 
+  knitr::kable(format = "latex", booktabs = TRUE, longtable = TRUE, linesep = "", escape = FALSE,
+               col.names = c("Con intercepto", "Sin intercepto"),
+               caption = "Suma de los cuadrados de los residuos $\\left(\\sum_{i = 1}^n e_i^2 \\right)$ del modelo de regresión lineal simple") %>% 
+  kableExtra::row_spec(0, align = "c") %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "repeat_header"))
+```
+
+De la tabla anterior, se aprecia que el modelo con intercepto tiene una menor suma de cuadrado de los residuos. Por lo tanto, podemos decir que el modelo RLS con intercepto *ajusta* mejor a los datos.
+
+# Ejercicio 6
+Mostrar las siguientes igualdades
+
+## Inciso 6.a
+\begin{align}
+S_{xx} = \displaystyle \sum_{i = 1}^n x_i^2 - n\bar{x}^2
+\end{align}
+
+\begin{proof}
+Usando la definición de $S_{xx}$ se tiene que:
+
+\begin{align*}
+S_{xx} &= \sum_{i = 1}^n \left( x_i - \bar{x} \right)^2 \\
+& \text{desarrollando el binomio cuadrado, se obtiene} \\
+&= \sum_{i = 1}^n \left( x_i^2 - 2 \bar{x} x_i + \bar{x}^2  \right), \\
+& \text{distribuyendo la suma sobre cada uno de los términos, se obtiene} \\
+&= \sum_{i = 1}^n x_i^2 - 2 \bar{x} \sum_{i = 1}^n x_i + \bar{x}^2 \sum_{i = 1}^n 1, \\
+& \text{multiplicando el segundo término por un 1 dn la forma } \dfrac{n}{n}, \text{ se obtiene} \\
+&= \sum_{i = 1}^n x_i^2 - 2 n \bar{x} \left(\dfrac{1}{n} \sum_{i = 1}^n x_i \right) + n \bar{x}^2, \\
+& \text{aplicando la definición de promedio, se obtiene} \\
+&= \sum_{i = 1}^n x_i^2 - 2 n \bar{x}^2 + n \bar{x}^2, \\
+&= \sum_{i = 1}^n x_i^2 -  n \bar{x}^2
+\end{align*}
+\end{proof}
+
+## Inciso 6.b
+\begin{align}
+S_{xy} = \displaystyle \sum_{i = 1}^n x_i y_i - n\bar{x} \bar{y}
+\end{align}
+
+\begin{proof}
+Usando la definición de $S_{xy}$ se tiene que:
+\begin{align*}
+S_{xy} &= \sum_{i = 1}^n \left( x_i - \bar{x} \right)\left( y_i - \bar{y} \right) \\
+& \text{desarrollando el producto de binomios, se obtiene} \\
+&= \sum_{i = 1}^n \left( x_i y_i - \bar{y} x_i - \bar{x} y_i + \bar{x} \bar{y}  \right), \\
+& \text{distribuyendo la suma sobre cada uno de los términos, se obtiene} \\
+&= \sum_{i = 1}^n x_i y_i - \bar{y} \sum_{i = 1}^n x_i - \bar{x} \sum_{i = 1}^n y_i + \bar{x} \bar{y} \sum_{i = 1}^n 1, \\
+& \text{multiplicando el segundo y tercer término un 1 de la forma } \dfrac{n}{n}, \text{ se obtiene} \\
+&= \sum_{i = 1}^n x_i y_i - n \bar{y} \left(\dfrac{1}{n}  \sum_{i = 1}^n x_i \right) - n \bar{x} \left(\dfrac{1}{n}  \sum_{i = 1}^n y_i \right) + n \bar{x} \bar{y}, \\
+& \text{aplicando la definición de promedio, se obtiene} \\
+&= \sum_{i = 1}^n x_i^2 - n \bar{y} \bar{x} - n \bar{x} \bar{y} + n \bar{x} \bar{y}, \\
+&= \sum_{i = 1}^n x_i y_i -  n \bar{x} \bar{y}
+\end{align*}
+\end{proof}
