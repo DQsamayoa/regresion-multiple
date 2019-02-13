@@ -1,0 +1,108 @@
+---
+title: "Regresión múltiple y otras técnicas multivariadas"
+subtitle: "Tarea 02"
+author:
+  - "Rivera Torres Francisco de Jesús"
+  - "Rodríguez Maya Jorge Daniel"
+  - "Samayoa Donado Víctor Augusto"
+  - "Trujillo Bariios Georgina"
+date: "Febrero 20, 2019"
+output:
+  pdf_document:
+    toc: false
+    number_sections: false
+    fig_caption: true
+    highlight: kate
+    df_print: kable
+    includes:
+      in_header: tex/header.tex
+fontsize: 11pt
+documentclass: article
+classoption: twoside
+fig_align: "center"
+---
+
+```{r setup, include = FALSE, eval = TRUE}
+knitr::opts_chunk$set(echo = FALSE, eval = TRUE, fig.height = 3)
+
+# Se cargan las librerias a utilizar
+library(tidyverse)
+library(readxl)
+library(scales)
+library(grid)
+library(kableExtra)
+library(latex2exp)
+```
+
+# Ejercicio 1
+Mostrar que los EMCO de $\beta_0$ y $\beta_1$ son lineales e insesgados.
+
+# Ejercicio 2
+Mostrar que $\hat{\mu}_0 = \hat{\beta}_1 + \hat{\beta}_1 x_0$ es un estimador insesgado de $\hat{\mu}_0 = \beta_1 + \beta_1 x_0$ y que
+\begin{align}
+V(\hat{\mu}_0) = \sigma^2 \left(\dfrac{1}{n} + \dfrac{\left(x_0 - \bar{x} \right)^2}{S_{xx}} \right)
+\end{align}
+
+# Ejercicio 3
+Suponer que se ajusta un modelo RLS por MCO a las observaciones $(x_i , y_i), i = 1, \ldots , n$. Verificar que se cumplen las siguientes igualdades:
+
+## Inciso (a)
+\begin{align}
+\sum_{i = 1}^n e_i = 0
+\end{align}
+
+## Inciso (b)
+\begin{align}
+\sum_{i = 1}^n x_i e_i = 0
+\end{align}
+
+## Inciso (c)
+\begin{align}
+\sum_{i = 1}^n \hat{y}_i e_i = 0
+\end{align}
+
+## Inciso (d)
+\begin{align}
+\sum_{i = 1}^n \hat{y}_i = \sum_{i = 1}^n y_i
+\end{align}
+
+## Inciso (e)
+\begin{align}
+\sum_{i = 1}^n y_i e_i = \sum_{i = 1}^n e_i^2
+\end{align}
+
+## Inciso (f)
+\begin{align}
+\sum_{i = 1}^n (\hat{y}_i - \bar{y}_i)^2 = \hat{\beta}_1^2 S_{xx}
+\end{align}
+
+# Ejercicio 4
+Calcular el error cuadrático medio de $\hat{\sigma}^2_{\mathrm{MCO}}$ y de $\hat{\sigma}^2_{\mathrm{MV}}$. A partir de los resultados decidir que estimador de $\sigma^2$ es mejor.
+
+# Ejercicio 5
+El conjunto de datos `mtcars` del paquete `datasets` de `R` contiene información sobre el rendimiento y otras características de $32$ vehículos. El rendimiento se encuentra en la variable `mpg` y está medido en millas por galón y el peso del vehículo está en la variable `wt` que está medida en miles de libras.
+
+## Inciso (a)
+Ajustar un modelo RLS para explicar `mpg` en términos de `wt`. Reportar las estimaciones de $\beta_0$ y $\beta_1$.
+
+## Inciso (b)
+Transformar la variable `wt` a toneladas y repetir el inciso anterior. ¿Cómo se relacionan estas estimaciones de $\beta_0$ y $\beta_1$ con las anteriores?
+
+## Inciso (c)
+Repetir el inciso anterior pero ahora con `mpg` transformada a kilómetros por litro y `wt` en las unidades originales (miles de libras).
+
+## Inciso (d)
+Concluir sobre el efecto de los cambios de escala en las estimaciones de los parámetros del modelo RLS.
+
+
+# Ejercicio 6
+Con el conjunto de datos `mtcars` ajustar un modelo RLS para explicar `mpg` en términos de `wt`
+
+## Inciso (a)
+Reportar las estimaciones de $V(\hat{\beta}_0)$ y $V(\hat{\beta}_1)$.
+
+## Inciso (b)
+Reportar la estimación de la medida del rendimiento de un vehículo con peso de $4,300$ libras.
+
+## Inciso (c)
+Reportar la estimación de la varianza de la estimación del inciso anterior.
