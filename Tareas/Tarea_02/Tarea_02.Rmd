@@ -82,27 +82,158 @@ Calcular el error cuadrático medio de $\hat{\sigma}^2_{\mathrm{MCO}}$ y de $\ha
 # Ejercicio 5
 El conjunto de datos `mtcars` del paquete `datasets` de `R` contiene información sobre el rendimiento y otras características de $32$ vehículos. El rendimiento se encuentra en la variable `mpg` y está medido en millas por galón y el peso del vehículo está en la variable `wt` que está medida en miles de libras.
 
+
 ## Inciso (a)
 Ajustar un modelo RLS para explicar `mpg` en términos de `wt`. Reportar las estimaciones de $\beta_0$ y $\beta_1$.
+
+```{r, echo = TRUE}
+
+# reutilizando la función definida en la tarea 1
+rls <- function(x, y) {
+  x.bar <- mean(x, na.rm = TRUE)
+  y.bar <- mean(y, na.rm = TRUE)
+  S.xx <- sum((x - x.bar)^2, na.rm = TRUE)
+  S.xy <- sum((x - x.bar) * (y - y.bar), na.rm = TRUE)
+  
+  b0.hat <- y.bar - x.bar * S.xy / S.xx
+  b1.hat <- S.xy / S.xx
+  
+  y.adj <- b0.hat + b1.hat * x
+  residuos <- y - y.adj
+  sigma2.hat <- sum(residuos^2) / (length(residuos) - 2)
+
+  return(list(b0.hat = b0.hat, b1.hat = b1.hat, sigma2.hat = sigma2.hat))
+}
+
+rls(mtcars$wt, mtcars$mpg)
+
+```
+
+Los valores estimados de $\beta_0$ y $\beta_1$ son los siguentes:
+
+```{r, echo = TRUE}
+
+paste(rls(mtcars$wt, mtcars$mpg)$b0.hat, " y ", rls(mtcars$wt, mtcars$mpg)$b1.hat)
+
+```
 
 ## Inciso (b)
 Transformar la variable `wt` a toneladas y repetir el inciso anterior. ¿Cómo se relacionan estas estimaciones de $\beta_0$ y $\beta_1$ con las anteriores?
 
+Según la información de la base, la unidad de _wt_ es 1000 libras. Por lo que para transformala a toneladas basta multiplicarla por $0.453592$
+
+```{r, echo = TRUE}
+
+mtcars$wt_ton <- 0.453592 * mtcars$wt
+
+```
+
+Ajustando una regresión lineal, los valores estimados de $\beta_0$ y $\beta_1$ son los siguentes:
+
+```{r, echo = TRUE}
+
+paste(rls(mtcars$wt_ton, mtcars$mpg)$b0.hat, " y ", rls(mtcars$wt_ton, mtcars$mpg)$b1.hat)
+
+```
+En comparación con el modelo 1, notamos que este modelo tiene el mismo intercepto y su valor estimado para $\beta_1$ es $0.453592$ veces el valor de la $\beta_1$ del primer modelo.
+
 ## Inciso (c)
 Repetir el inciso anterior pero ahora con `mpg` transformada a kilómetros por litro y `wt` en las unidades originales (miles de libras).
+
+Según la información de la base, _mpg_ representa las millas por galón. Para transformar el rendimiento a kilómetros por litro, usaremos la siguiente información: una milla es $1.609344$kilómetros y un galón es $4.54609$ litros. Por lo que basta multiplicarlo por $0.35400618 = 1.609344 / 4.54609$.
+
+```{r, echo = TRUE}
+
+    mtcars$kpl <- 0.35400618 * mtcars$mpg
+
+```
+
+Ajustando una regresión lineal para el rendimiento medido por kilómetros por litros y peso en miles de libras, los valores estimados de $\beta_0$ y $\beta_1$ son los siguentes:
+
+```{r, echo = TRUE}
+
+paste(rls(mtcars$wt, mtcars$kpl)$b0.hat, " y ", rls(mtcars$wt, mtcars$kpl)$b1.hat)
+
+```
+En comparación con el modelo 1, notamos que este modelo tiene valores distintos tanto para $\beta_0$ como para $\beta_1$. En ambos casos estas nuevas estimaciones corresponden a la $0.3500618$ parte de las primeras estimaciones.
+
 
 ## Inciso (d)
 Concluir sobre el efecto de los cambios de escala en las estimaciones de los parámetros del modelo RLS.
 
+Si en un modelo RLS la variable independiente cambia de escala, la nueva estimación del intercepto no cambiará mientras que la de $\beta_1$ sí se modifica y lo hace en la misma razón en la que cambia la escala. En el caso del cambio de escala de la varible dependiente ambas estimaciones se modifican (su nuevo valor es exactamente al viejo valor multiplicado por el cambio de escala). En el primer caso (cambio de escala de variable independiente), cuando el valor de la variable independiente es cero (y tiene sentido interpretarla), la interpretación para la variable dependiente es la misma que sin cambio de escala; no obstante, la interpretación del cambio ante una variación en la variable independiente se modifica en razón del cambio de escala (pero en realidad podría decirse que es la misma). En el caso en que se modifica la escala de la variable dependiente, ambas estimaciones se modifican pero nuevamente este cambio sólo refleja el cambio de escala en los valores estimados.
 
 # Ejercicio 6
 Con el conjunto de datos `mtcars` ajustar un modelo RLS para explicar `mpg` en términos de `wt`
 
+```{r, echo = TRUE}
+rls(mtcars$wt, mtcars$mpg)
+```
+
 ## Inciso (a)
 Reportar las estimaciones de $V(\hat{\beta}_0)$ y $V(\hat{\beta}_1)$.
 
+### Beta 1
+Primero veamos que ocurre $V(\hat{\beta}_1)$. 
+
+\begin{align}\label{eq:beta1}
+   V(\hat{\beta}_1) = V(\frac{ \sum_{i = 1}^n(x_i - \bar{x})y_i }{ \sum_{i = 1}^n(x_i - \bar{x})^2}) = \frac{ 1 }{ \left[\sum_{i = 1}^n(x_i - \bar{x})^2 \right]^2 }
+    \sum_{i = 1}^n(x_i - \bar{x})^2 {V} (y_i) = \frac{ \sigma^2 }{ \sum_{i = 1}^n(x_i - \bar{x})^2  }
+\end{align}
+
+La primera igualdad está dada por la definición de $\beta_1$ como la razón entre $S_{xy}$ y  $S_{xx}$. La segunda por las propiedades de la varianza y porque $V(\sum_{i = 1}^n(y_i))$ puede verse de la siguiente manera:
+
+\begin{align}
+V \left( \sum_{i = 1}^n y_i \right) = V \left( \sum_{i = 1}^n \beta_0 + \beta_1 X_i + \epsilon_i \right) = V \left( \sum_{i = 1}^n \epsilon_i \right) &= \sum_{i = 1}^n \sum_{j = 1}^n  Cov (\epsilon_i, \epsilon_j)  = \sum_{i = 1}^n  Cov (\epsilon_i, \epsilon_i) \sum_{i = 1}^n  V(\epsilon_i)\\
+&= \sum_{i = 1}^n  V(\beta_0 + \beta_1 X_i + \epsilon_i)
+= \sum_{i = 1}^n  V(y_i)\\
+\end{align}
+
+En este caso usamos la forma funcional que define a nuestro modelo, las propiedades de la varianza sobre constantes y el supuesto de que los errores son independientes (es decir, que $Cov (\epsilon_i, \epsilon_j)  = 0$)
+
+### Beta 0
+En el caso de $\beta_0$, podemos escribirlo en términos de $\beta1$ según la ecuación \ref{eq:beta1}. De tal manera, ocurre lo siguiente:
+
+\begin{align*}\label{eq:beta0a}
+  V(\hat{\beta_0}) = V(\bar{y}-\hat{\beta_1}\bar{x}) = V(\hat{\beta_0}) =       
+  V(\bar{y})+(\bar{x}^2)V(\bar{\beta_1})- 2(\bar{x})Cov(\bar{Y},\hat{\beta_0}) 
+\end{align*}
+
+El primer término de la ecuación \ref{eq:beta0a} a su vez puede desarrollarse como sigue:
+\begin{align*}
+V(\bar{y})= V \left(\frac{1}{n} \sum_{i = 1}^n y_i \right)
+  = \frac{1}{n^2} \sum_{i = 1}^n V(y_i)
+  = \frac{\sigma^2}{n}
+\end{align*}
+
+El segundo término de \ref{eq:beta0a} ya se desarrolló anteriormente en \ref{eq:beta1}. Finalmente, la covarianza entre $\bar{y}$ y $\hat{\beta_1}$ puede verse como sigue: 
+
+\begin{align}
+  Cov (\bar{Y}, \hat{\beta}_1) &= Cov \left\{\frac{1}{n} \sum_{i = 1}^n Y_i,
+     \frac{ \sum_{j = 1}^n(x_j - \bar{x})Y_j }{ \sum_{i = 1}^n(x_i - \bar{x})^2 }
+     \right \} &= \frac{1}{n} \frac{ 1 }{ \sum_{i = 1}^n(x_i - \bar{x})^2 }
+     Cov \left\{ \sum_{i = 1}^n Y_i, \sum_{j = 1}^n(x_j - \bar{x})Y_j \right\} \\
+ &= \frac{ 1 }{ n \sum_{i = 1}^n(x_i - \bar{x})^2 }
+    \sum_{i = 1}^n (x_j - \bar{x}) \sum_{j = 1}^n Cov(Y_i, Y_j) \\
+ &= \frac{ 1 }{ n \sum_{i = 1}^n(x_i - \bar{x})^2 }
+    \sum_{i = 1}^n (x_j - \bar{x}) \sigma^2 = 0
+\end{align}
+
+Esto último ocurre pues $\sum_{i = 1}^n (x_j - \bar{x})=0$
+
+Así
+\begin{align}
+  V(\hat{\beta}_0)
+ &= \frac{\sigma^2}{n} + \frac{ \sigma^2 \bar{x}^2}{ \sum_{i = 1}^n(x_i - \bar{x})^2  } \\
+ &= \frac{\sigma^2 }{ n \sum_{i = 1}^n(x_i - \bar{x})^2 }
+    \left\{ \sum_{i = 1}^n(x_i - \bar{x})^2 + n \bar{x}^2 \right\} \\
+ &= \frac{\sigma^2 \sum_{i = 1}^n x_i^2}{ n \sum_{i = 1}^n(x_i - \bar{x})^2 } \label{beta0}
+\end{align}
+
 ## Inciso (b)
 Reportar la estimación de la medida del rendimiento de un vehículo con peso de $4,300$ libras.
+
+Para un coche con $4.3$ miles de libras, la medida de rendimiento estimada está dada por $37.285126167342 - 5.34447157272268*4.3 = 14.3039 \frac{miles}{gallon}$.
 
 ## Inciso (c)
 Reportar la estimación de la varianza de la estimación del inciso anterior.
