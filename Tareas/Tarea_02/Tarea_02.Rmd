@@ -37,6 +37,80 @@ library(latex2exp)
 # Ejercicio 1
 Mostrar que los EMCO de $\beta_0$ y $\beta_1$ son lineales e insesgados.
 
+\begin{proof}
+Tenemos que escribir a los EMCO como combinaciones lineales, es decir, existen constantes $a_{i's}$ y $b_{i's}$ tales que:
+\begin{align*}
+\hat\beta_0= \sum_{i=1}^{n}  a_iy_i \quad \text{y} \quad \hat\beta_1= \sum_{i=1}^{n} b_iy_i
+\end{align*}
+
+Sabemos que $\hat\beta_1= \displaystyle\dfrac{S_{xy}}{S_{xx}}$. Por lo que, desarrollando $S_{xy}$ tenemos:
+\begin{align*}
+S_{xy}
+&= \sum_{i=1}^{n}(x_i-\bar{x}_n)(y_i-\bar{y}_n) = \sum_{i=1}^{n}(x_iy_i-xi\bar{y}_n-\bar{x}_{n}y_{i}+\bar{x}_n\bar{y}_n)\\
+&= \sum_{i=1}^{n}(x_i-y_i) - \sum_{i=1}^{n}(x_i-\bar{y}_n) - \sum_{i=1}^{n}(\bar{x}_n-y_i) + \sum_{i=1}^{n}(\bar{x}_i-\bar{y}_n)\\
+&= \sum_{i=1}^{n}(x_i-y_i) - n\bar{x}_n\bar{y}_n - \sum_{i=1}^{n}(\bar{x}_n-y_i) + n\bar{x}_n\bar{y}_n\\
+&= \sum_{i=1}^{n}(x_i-y_i) - \sum_{i=1}^{n}(\bar{x}_n-y_i) = \sum_{i=1}^{n}(x_i-\bar{x}_n)y_i
+\end{align*}
+
+Entonces
+\begin{align*}
+\hat\beta_1= \frac{S_{xy}}{S_{xx}}=\frac{\sum_{i=1}^{n}(x_i-\bar{x}_n)y_i}{S_{xx}} = \sum_{i=1}^{n}\frac{(x_i-\bar{x}_n)}{S_{xx}}y_i
+\end{align*}
+  
+Por otra parte $\hat\beta_0 = \bar{y}_n - \frac{S_{xy}}{S_{xx}}\bar{x}_n$ entonces
+ 
+\begin{align*}
+\hat\beta_0
+&= \sum\frac{y_i}{n} - \sum_{i=1}^{n}\frac{(x_i-\bar{x}_n)}{S_{xx}}(y_i)(\bar{x}_n) \\
+&= \sum_{i=1}^{n}(\frac{1}{n}-\frac{(x_i-\bar{x}_n)\bar{x}_n}{S_{xx}})y_i \\
+\end{align*}
+  
+Ahora demostraremos que son insesgados, i.e., $\mathbf{E}(\hat\beta_0)=\beta_0 \,\,\,\,\,\,\mathbf{E}(\hat\beta_1)=\beta_1$.
+
+Utilizaremos las siguientes igualdades:
+  
+$$\sum_{i=1}^{n}\frac{(x_i-\bar{x}_n)}{S_{xx}}=\frac{\sum_{i=1}^{n}(x_i-\bar{x}_n)}{\sum_{i=1}^{n}(x_i-\bar{x}_n)^2}=\frac{(n\bar{x}_n-n\bar{x}_n)}{\sum_{i=1}^{n}(x_i-\bar{x}_n)^2}=0 \quad \text{a)}$$
+  
+$$\sum_{i=1}^{n}\frac{(x_i-\bar{x}_n)x_i}{S_{xx}}=\frac{\sum_{i=1}^{n}(x_i-\bar{x}_n)x_i}{\sum_{i=1}^{n}(x_i-\bar{x}_n)^2}=\frac{\sum_{i=1}^{n}x_i^2-\bar{x}_nx_i}{\sum_{i=1}^{n}(x_i-\bar{x}_n)^2}=\frac{\sum_{i=1}^{n}x_i^2-\bar{x}_n\sum_{i=1}^{n}x_i}{\sum_{i=1}^{n}(x_i^2-2x_i\bar{x}_n+\bar{x_n}^2)}$$
+  
+$$=\frac{\sum_{i=1}^{n}x_i^2-\bar{x}_n\sum_{i=1}^{n}x_i}{\sum_{i=1}^{n}(x_i^2-2x_i\bar{x}_n+\bar{x}^2)}=\frac{\sum_{i=1}^{n}x_i^2-\bar{x}_nn\bar{x_n}}{\sum_{i=1}^{n}x_i^2-2n\bar{x}_n\bar{x}_n+n\bar{x_n}^2}=1 \quad \text{b)}$$
+  
+Teniendo en cuenta que: $y_i=\beta_0+\beta_1x_i+ \epsilon_i$
+ 
+\begin{align*}
+\hat\beta_1
+&= \sum_{i=1}^{n} a_{i}y_{i}= \sum_{i=1}^{n} a_{i}(\beta_0+\beta_1x_i+ \epsilon_i)\\
+&=\sum_{i=1}^{n} a_{i}\beta_0+\sum_{i=1}^{n} a_{i}\beta_1x_i+\sum_{i=1}^{n} a_{i}\epsilon_i  \quad \text{por} \quad \text{a)}\\
+&=\sum_{i=1}^{n} a_{i}\beta_1x_i+\sum_{i=1}^{n} a_{i}\epsilon_i  \quad \text{por} \quad \text{b)}\\
+&=\beta_1(1)+\sum_{i=1}^{n} a_{i}\epsilon_i\\
+&\Rightarrow\mathbf{E}(\hat\beta_1)=\mathbf{E}(\beta_1)+\sum_{i=1}^{n} a_{i}\mathbf{E}(\epsilon_1)\\
+&\Rightarrow\mathbf{E}(\hat\beta_1)=\beta_1
+\end{align*}
+  
+Para $\hat\beta_0$ usaremos:\\
+  
+\begin{align*}
+\sum_{i=1}^{n} b_{i}x_i
+&=\sum_{i=1}^{n}(\frac{1}{n}- \frac{(x_i-\bar{x}_n)\bar{x_n}}{S_{xx}})x_i\\
+&=\sum_{i=1}^{n}(\frac{1}{n}- \frac{(y_i-\bar{x}_n)\bar{x_n}}{S_{xx}})x_i=\sum_{i=1}^{n}(\frac{x_i}{n}-\frac{(x_i\bar{x}_n)\bar{x_n}x_i}{S_{xx}})\\
+&=\bar{x_n}-( \frac{\sum_{i=1}^{n}(x_i^2-\bar{x}_n-\bar{x_n^2}x_i)}{S_{xx}})=\bar{x_n}-(\frac{\bar{x_n}\sum_{i=1}^{n}(x_i^2-\bar{x}_n-\bar{x_n^2}x_i)}{S_{xx}}) \\
+&=\bar{x_n}-\bar{x}_n(\frac{\sum_{i=1}^{n}(x_i^2-\bar{x}_n-\bar{x_n^2}x_i)}{S_{xx}})=\bar{x_n}-\bar{x}_n(\frac{\sum_{i=1}^{n}x_i^2-n\bar{x_n^2}}{\sum_{i=1}^{n}x_i^2-n\bar{x_n^2}}) = 0 \quad \text{c)}\\
+&= \sum_{i=1}^{n} b_{i}=\sum_{i=1}^{n}(\frac{1}{n}- \frac{(x_i-\bar{x}_n)\bar{x_n}}{S_{xx}})=\sum_{i=1}^{n}\frac{1}{n}-\sum \frac{(x_i-\bar{x}_n)\bar{x_n}}{S_{xx}}\\
+&=\sum_{i=1}^{n}\frac{1}{n}-\frac{\sum_{i=1}^{n}(x_i-\bar{x}_n)\bar{x}_n}{\sum_{i=1}^{n}(x_i-\bar{x}_n)^2}=1-\frac{(n{\bar{x}_n}^2-{n\bar{x}_n}^2)}{\sum_{i=1}^{n}(x_i-\bar{x}_n)^2} = 1 \quad \text{d)}
+\end{align*}
+
+Entonces
+\begin{align*}
+\hat\beta_0
+&= \sum_{i=1}^{n} b_{i}y_{i}= \sum_{i=1}^{n} b_{i}(\beta_0+\beta_1x_i+ \epsilon_i)\\
+&=\sum_{i=1}^{n} b_{i}\beta_0+\sum_{i=1}^{n} b_{i}\beta_1x_i+\sum_{i=1}^{n} b_{i}\epsilon_i \quad \text{por} \quad \text{c)} \quad \text{y} \quad \text{d)}\\
+&=\beta_0(1)+\sum_{i=1}^{n} b_{i}\epsilon_i\\
+&\Rightarrow\mathbf{E}(\hat\beta_0)=\mathbf{E}(\beta_0)+\sum_{i=1}^{n} b_{i}\mathbf{E}(\epsilon_1)\\
+&\Rightarrow\mathbf{E}(\hat\beta_0)=\beta_0
+\end{align*}
+Por lo tanto los EMCO de  $ \beta_0 $ y $ \beta_1 $ son linales e insesgados.\\
+\end{proof}
+
 # Ejercicio 2
 Mostrar que $\hat{\mu}_0 = \hat{\beta}_1 + \hat{\beta}_1 x_0$ es un estimador insesgado de $\mu_0 = \beta_1 + \beta_1 x_0$ y que
 \begin{align}
@@ -207,6 +281,66 @@ e_i &\stackrel{(i)}{=} y_i - \hat{y}_i & \hat{y}_i &\stackrel{(ii)}{=} \hat{\bet
 
 # Ejercicio 4
 Calcular el error cuadrático medio de $\hat{\sigma}^2_{\mathrm{MCO}}$ y de $\hat{\sigma}^2_{\mathrm{MV}}$. A partir de los resultados decidir que estimador de $\sigma^2$ es mejor.
+
+\begin{proof}
+Calcular el error cuadrático medio de $\hat{\sigma}^{2}_{MCO}$ y de $\hat{\sigma}^{2}_{MV}$. A partir de los resulatdos decidir que estimador de $\sigma^{2}$ es mejor.\\
+
+Observe que en el modelo de regresión lineal simple (RLS) se cumple 
+$$\dfrac{(n-2) \hat{\sigma}^{2}_{MCO}}{\sigma^{2}} \sim \Xi^{2}_{n-2}$$
+
+Además se tiene que
+$$X \sim \Xi^{2}_{u} \Rightarrow \mathbb{E}(X) = u \; \: \text{y} \mathbb{V}(X) = 2u$$
+$$ECM(\hat{\theta}) = B^{2}(\hat{\theta})+ V(\hat{\theta})^{2} \:\:(*)$$
+
+Ahora, calculando la varianza de $\hat{\sigma}^{2}_{MCO}$, esto es:
+\begin{align*}
+& V\left( \dfrac{(n-2) \hat{\sigma}^{2}_{MCO}}{\sigma^{2}} \right) = 2(n-2) \\
+& \dfrac{(n-2) \mathbb[V](\hat{\sigma}^{2}_{MCO})}{\sigma^{4}} = 2(n-2) \\
+& V(\hat{\sigma}^{2}_{MCO}) = \dfrac{2(n-2) \sigma^{4}}{(n-2)^{2}} \\
+& V(\hat{\sigma}^{2}_{MCO}) = \dfrac{2\sigma^{4}}{(n-2)}
+\end{align*}
+
+Y como $\hat{\sigma}^{2}_{MCO}$ es insesgado, entonces $B^{2}(\hat{\sigma}^{2}_{MCO})=0$. Así tenemos que:
+$$ECM(\hat{\sigma}^{2}_{MCO}) = \hat{\sigma}^{2}_{MCO}$$
+
+También sabemos que
+$$ \hat{\sigma}^{2}_{MV}= \dfrac{(n-2) \hat{\sigma}^{2}_{MCO}}{n} \Rightarrow \hat{\sigma}^{2}_{MCO} = \dfrac{n \hat{\sigma}^{2}_{MV}}{(n-2)}$$
+
+Teniendo en cuenta lo anterior, la esperanza de $\hat{\sigma}^{2}_{MV}$ es
+\begin{align*}
+& E\left( \dfrac{(n-2) \hat{\sigma}^{2}_{MCO}}{\sigma^{2}} \right) = n-2 \\
+& E\left( \dfrac{(n-2) n \hat{\sigma}^{2}_{MV}}{(n-2)\sigma^{2}} \right) = n-2 \\
+& E\left(\hat{\sigma}^{2}_{MV}\right)= \dfrac{(n-2)\sigma^{2}}{n}
+\end{align*}
+
+Del mismo modo tenemos que la varianza de $\hat{\sigma}^{2}_{MV}$ es
+\begin{align*}
+& V\left( \dfrac{(n-2) \hat{\sigma}^{2}_{MCO}}{\sigma^{2}} \right) = 2(n-2) \\
+& V\left( \dfrac{(n-2) n \hat{\sigma}^{2}_{MV}}{(n-2)\sigma^{2}} \right) = 2(n-2) \\
+& V\left(\hat{\sigma}^{2}_{MV}\right)= \dfrac{2(n-2)\sigma^{4}}{n^{2}}
+\end{align*}
+
+De $(*)$ se sigue que el sesgo de  $\hat{\sigma}^{2}_{MV}$ es
+\begin{align*}
+B^{2}(\hat{\sigma}^{2}_{MV})
+&= \left[ E( \hat{\sigma}^{2}_{MV}) - \sigma^{2} \right]^{2} \\
+&= \left[ \dfrac{(n-2)\sigma^{2}}{n} - \sigma^{2} \right]^{2} \\
+&= \left[ \sigma^{2} \left(\dfrac{(n-2)}{n} - 1\right) \right]^{2} \\
+&= \left( -\dfrac{2\sigma^{2}}{n} \right)^{2} \\
+&\Rightarrow B^{2}(\hat{\sigma}^{2}_{MV}) =\dfrac{4\sigma^{2}}{n^{2}}
+\end{align*}
+
+Por lo tanto, el $ECM(\hat{\sigma}^{2}_{MV})$ es
+\begin{align*}
+ECM(\hat{\sigma}^{2}_{MV})
+&= \dfrac{2(n-2)\sigma^{4}}{n^{2}} + \dfrac{4\sigma^{4}}{n^{2}}=\sigma^{4} \left( \dfrac{2n-4+4}{n^{2}} \right) \\
+&\rightarrow ECM(\hat{\sigma}^{2}_{MV})= \dfrac{2\sigma^{4}}{n}.
+\end{align*}
+
+Por lo anterior, podemos observar que
+$$ECM(\hat{\sigma}^{2}_{MV})< ECM(\hat{\sigma}^{2}_{MCO})$$
+Por lo que podemos concluir que $ECM(\hat{\sigma}^{2}_{MV})$ es el mejor estimador de $\sigma^{2}$
+\end{proof}
 
 # Ejercicio 5
 El conjunto de datos `mtcars` del paquete `datasets` de `R` contiene información sobre el rendimiento y otras características de $32$ vehículos. El rendimiento se encuentra en la variable `mpg` y está medido en millas por galón y el peso del vehículo está en la variable `wt` que está medida en miles de libras.
