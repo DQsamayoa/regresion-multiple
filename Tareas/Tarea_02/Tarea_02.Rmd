@@ -365,7 +365,7 @@ rls <- function(x, y) {
   residuos <- y - y.adj
   sigma2.hat <- sum(residuos^2) / (length(residuos) - 2)
 
-  return(list(b0.hat = b0.hat, b1.hat = b1.hat, sigma2.hat = sigma2.hat))
+  return(list(b0.hat = b0.hat, b1.hat = b1.hat, sigma2.hat = sigma2.hat, sxx = S.xx))
 }
 
 rls(mtcars$wt, mtcars$mpg)
@@ -454,6 +454,7 @@ V \left( \sum_{i = 1}^n y_i \right) = V \left( \sum_{i = 1}^n \beta_0 + \beta_1 
 
 En este caso usamos la forma funcional que define a nuestro modelo, las propiedades de la varianza sobre constantes y el supuesto de que los errores son independientes (es decir, que $Cov (\epsilon_i, \epsilon_j)  = 0$)
 
+
 ### Beta 0
 En el caso de $\beta_0$, podemos escribirlo en términos de $\beta1$ según la ecuación \ref{eq:beta1}. De tal manera, ocurre lo siguiente:
 
@@ -490,13 +491,54 @@ Así
  &= \frac{\sigma^2}{n} + \frac{ \sigma^2 \bar{x}^2}{ \sum_{i = 1}^n(x_i - \bar{x})^2  } \\
  &= \frac{\sigma^2 }{ n \sum_{i = 1}^n(x_i - \bar{x})^2 }
     \left\{ \sum_{i = 1}^n(x_i - \bar{x})^2 + n \bar{x}^2 \right\} \\
- &= \frac{\sigma^2 \sum_{i = 1}^n x_i^2}{ n \sum_{i = 1}^n(x_i - \bar{x})^2 } \label{beta0}
+ &= \frac{\sigma^2 \sum_{i = 1}^n x_i^2}{ n \sum_{i = 1}^n(x_i - \bar{x})^2 } \label{eq:beta0}
 \end{align}
 
-## Inciso (b)
-Reportar la estimación de la medida del rendimiento de un vehículo con peso de $4,300$ libras.
+### Estimación de Varianza 
 
-Para un coche con $4.3$ miles de libras, la medida de rendimiento estimada está dada por $37.285126167342 - 5.34447157272268*4.3 = 14.3039 \frac{miles}{gallon}$.
+Dadas las expresiones anteriores podemos calcular la varianza (y el inciso siguiente) de los estimadores con los siguientes valores:
+
+```{r, echo = TRUE}
+beta0 <- rls(mtcars$wt, mtcars$mpg)$b0.hat
+beta1 <- rls(mtcars$wt, mtcars$mpg)$b1.hat
+sigma2 <- rls(mtcars$wt, mtcars$mpg)$sigma2.hat
+sxx <- rls(mtcars$wt, mtcars$mpg)$sxx
+n <- nrow(mtcars) # pues no hay valores perdidos
+sum_x2 <- sum((mtcars$wt)^2)
+```
+
+$\hat\beta_0 =$ `r beta0`,$\\$
+$\hat\beta_1 =$ `r beta1`,$\\$
+$\hat\sigma^2 =$ `r sigma2`,$\\$
+$S_xx =$ `r sxx`,$\\$
+$n$ = `r n`, $\\$
+$\sum_i=1^n{x_i^2} =$ `r sum_x2`.
+
+Así, sustituyendo estos datos del modelo ajustado en las expresiones dadas en las ecuaciones \ref{eq:beta0} y \ref{eq:beta1} encontramos que las varianzas de los estimadores del modelo son las siguientes:
+
+```{r, echo = TRUE}
+varBeta0 = (sigma2*sum_x2)/(n*sxx)
+varBeta1 = sigma2/sxx
+```
+Así, $V(\beta_0) =$ `r varBeta0` y $V(\beta_1) =$ `r varBeta1`.
+
+## Inciso (b)
+Reportar la estimación de la medida del rendimiento de un vehículo con peso de $4300$ libras.
+
+Para un coche con $4.3$ miles de libras, la medida de rendimiento estimada está dada por `r beta0 + beta1*4.3`$\frac{miles}{gallon}$.
 
 ## Inciso (c)
 Reportar la estimación de la varianza de la estimación del inciso anterior.
+
+Según lo demostrado en el ejercicio 2, sabemos que la varianza de la estimación media es la siguiente:
+
+\begin{align}
+  V(\hat{\mu}_0) = \sigma^2 \left(\dfrac{1}{n} + \dfrac{\left(x_0 - \bar{x}
+  \right)^2}{S_{xx}} \right)
+\end{align}
+
+```{r, echo = TRUE}
+varMu0 = sigma2*((1/n)+((14.3039 - mean(mtcars$wt))/sxx)^2)
+```
+
+Así, $V(\hat\mu_0) =$ `r varMu0`.
