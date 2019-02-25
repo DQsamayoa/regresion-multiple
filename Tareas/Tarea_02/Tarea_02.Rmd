@@ -403,11 +403,11 @@ En comparación con el modelo 1, notamos que este modelo tiene el mismo intercep
 ## Inciso (c)
 Repetir el inciso anterior pero ahora con `mpg` transformada a kilómetros por litro y `wt` en las unidades originales (miles de libras).
 
-Según la información de la base, _mpg_ representa las millas por galón. Para transformar el rendimiento a kilómetros por litro, usaremos la siguiente información: una milla es $1.609344$kilómetros y un galón es $4.54609$ litros. Por lo que basta multiplicarlo por $0.35400618 = 1.609344 / 4.54609$.
+Según la información de la base, _mpg_ representa las millas por galón. Para transformar el rendimiento a kilómetros por litro, usaremos la siguiente información: una milla es $1.609344$kilómetros y un galón es $4.54609$ litros. Por lo que basta multiplicarlo por `r 1.609344 / 3.78541`.
 
 ```{r, echo = TRUE}
 
-    mtcars$kpl <- 0.35400618 * mtcars$mpg
+    mtcars$kpl <- (1.609344 / 3.78541) * mtcars$mpg
 
 ```
 
@@ -418,13 +418,13 @@ Ajustando una regresión lineal para el rendimiento medido por kilómetros por l
 paste(rls(mtcars$wt, mtcars$kpl)$b0.hat, " y ", rls(mtcars$wt, mtcars$kpl)$b1.hat)
 
 ```
-En comparación con el modelo 1, notamos que este modelo tiene valores distintos tanto para $\beta_0$ como para $\beta_1$. En ambos casos estas nuevas estimaciones corresponden a la $0.3500618$ parte de las primeras estimaciones.
+En comparación con el modelo 1, notamos que este modelo tiene valores distintos tanto para $\beta_0$ como para $\beta_1$. En ambos casos estas nuevas estimaciones corresponden a la `r 1.609344 / 3.78541` parte de las primeras estimaciones.
 
 
 ## Inciso (d)
 Concluir sobre el efecto de los cambios de escala en las estimaciones de los parámetros del modelo RLS.
 
-Si en un modelo RLS la variable independiente cambia de escala, la nueva estimación del intercepto no cambiará mientras que la de $\beta_1$ sí se modifica y lo hace en la misma razón en la que cambia la escala. En el caso del cambio de escala de la varible dependiente ambas estimaciones se modifican (su nuevo valor es exactamente al viejo valor multiplicado por el cambio de escala). En el primer caso (cambio de escala de variable independiente), cuando el valor de la variable independiente es cero (y tiene sentido interpretarla), la interpretación para la variable dependiente es la misma que sin cambio de escala; no obstante, la interpretación del cambio ante una variación en la variable independiente se modifica en razón del cambio de escala (pero en realidad podría decirse que es la misma). En el caso en que se modifica la escala de la variable dependiente, ambas estimaciones se modifican pero nuevamente este cambio sólo refleja el cambio de escala en los valores estimados.
+Si en un modelo RLS la variable independiente cambia de escala, la nueva estimación del intercepto no cambiará mientras que la de $\beta_1$ sí se modifica y lo hace en la misma razón en la que cambia la escala (es decir, cambia en valor absoluto mas no relativo). En el caso del cambio de escala de la varible dependiente ambas estimaciones se modifican (su nuevo valor es exactamente al viejo valor multiplicado por el cambio de escala). En el primer caso (cambio de escala de variable independiente), cuando el valor de la variable independiente es cero (y tiene sentido interpretarla), la interpretación para la variable dependiente es la misma que sin cambio de escala; no obstante, la interpretación del cambio ante una variación en la variable independiente se modifica en razón del cambio de escala (pero en realidad podría decirse que es la misma). En el caso en que se modifica la escala de la variable dependiente, ambas estimaciones se modifican pero nuevamente este cambio sólo refleja el cambio de escala en los valores estimados.
 
 # Ejercicio 6
 Con el conjunto de datos `mtcars` ajustar un modelo RLS para explicar `mpg` en términos de `wt`
