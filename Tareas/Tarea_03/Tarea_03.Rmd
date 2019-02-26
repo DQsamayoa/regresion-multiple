@@ -43,23 +43,52 @@ SCE= \frac{S_{xx} S_{yy}- S^2_{xy}}{S_{xx}}
 \end{align*}
 
 Donde:
+\begin{itemize}
+\item $SCE= \displaystyle\sum_i^n(y_i-\hat\beta_0-\hat\beta_1x_i) ^2$
+\item $S_{yy}= \displaystyle\sum_i^n(y_i-\bar{y_n})^2$
+\end{itemize}
 
-\begin{align*}
-SCE= \sum_i^n(y_i-\hat\beta_0-\hat\beta_1x_i) ^2
-\end{align*}
-
-\begin{align*}
-S_{yy}= \sum_i^n(y_i-\bar{y_n})^2
-\end{align*}
 
 #Ejercicio 2
-Mostrar la desigualdad de Bonferroni. Si $E_1,\cdots ,E_k$ son eventos en un espacio de probabilidad
-$(\omega, A, P)$ entonces 
+Mostrar la desigualdad de Bonferroni. Si $E_1,\ldots ,E_k$ son eventos en un espacio de probabilidad
+$(\omega, A, P)$ entonces:
+\begin{align*}
+P\left(\bigcap\limits_{i = 1}^k E_i \right) \geqslant 1- \sum_{i = 1}^k P(\Omega \setminus E_i) 
+\end{align*}
 
+\begin{proof}
+La demostración se realizará por inducción sobre el número de eventos en un espacio de probabilidad.
+
+Base: k = 1
+\begin{align*}
+P(\Omega) &= 1, \qquad \text{pero } \Omega = E \cup \left(\Omega \setminus E_1\right) \text{, entonces} \\
+P(E \cup \left(\Omega \setminus E_1\right)) &= P(E_1) + P(\Omega \setminus E_1) = 1, \qquad \text{ya que son probabilidades mutuamente excluyentes} \\
+P(E_1) &= 1 -  P(\Omega \setminus E_1), \qquad \ \text{como se da la igualdad entonces tambien se satisface que} \\
+P(E_1) &\geqslant 1 -  P(\Omega \setminus E_1)
+\end{align*}
+
+Ahora, por hipótesis de inducción, suponemos que se vale para $n$ eventos en el espacio de probabilidad, por lo que se satisface la desigualdad
+\begin{align*}
+P\left(\bigcap\limits_{i = 1}^n E_i \right) \geqslant 1- \sum_{i = 1}^n P(\Omega \setminus E_i) 
+\end{align*}
+Y procedemos a demostrar que siempre que se cumpla para $n$ eventos, se debe de cumplir para $n + 1$ eventos.
 
 \begin{align*}
-Pr(\cap{E_j}) \geq 1-Pr(E_j^c) 
+P\left(\bigcap\limits_{i = 1}^{n + 1} E_i \right)
+&= P \left( \left( \bigcap\limits_{i = 1}^{n} E_i) \right) \bigcap E_{n + 1} \right) \\
+&= P \left( \bigcap\limits_{i = 1}^{n} E_i) \right) + P \left( E_{n + 1} \right) - P \left( \left( \bigcap\limits_{i = 1}^{n} E_i) \right) \bigcup E_{n + 1} \right)
 \end{align*}
+Pero notemos que $P \left( \left( \bigcap_{i = 1}^{n} E_i) \right) \bigcup E_{n + 1} \right) \leqslant 1$, por lo que $ - P \left( \left( \bigcap_{i = 1}^{n} E_i) \right) \bigcup E_{n + 1} \right) \geqslant -1$, entonces
+\begin{align*}
+P\left(\bigcap\limits_{i = 1}^{n + 1} E_i \right)
+&\geqslant P \left( \bigcap\limits_{i = 1}^{n} E_i) \right) + P \left( E_{n + 1} \right) - 1 \\
+&\text{aplicando la hipótesis de inducción, se tiene} \\
+&\geqslant 1- \sum_{i = 1}^n P(\Omega \setminus E_i)  + P \left( E_{n + 1} \right) - 1 \\
+&\geqslant 1- \sum_{i = 1}^n P(\Omega \setminus E_i)  + \left(1 - P \left(\Omega \setminus E_{n + 1} \right) \right) - 1 \\
+&\geqslant 1- \sum_{i = 1}^n P(\Omega \setminus E_i)  + P \left(\Omega \setminus E_{n + 1} \right) \\
+&\geqslant 1- \sum_{i = 1}^{n + 1} P(\Omega \setminus E_i)
+\end{align*}
+\end{proof}
 
 
 #Ejercicio 3
