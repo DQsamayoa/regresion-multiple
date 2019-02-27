@@ -115,6 +115,101 @@ de las notas. Reportar intervalos simultáneos de confianza $95\%$ para las medi
 hora para $9$, $15$ y $19$ años de escolaridad a) con el método de Bonferroni y b) con el método de
 Hotelling$-$Scheffé
 
+En el caso del modelo RLS para datos de ingresos por hora tenemos lo siguiente:
+
+```{r, echo = TRUE}
+rls <- function(x, y) {
+  x.bar <- mean(x, na.rm = TRUE)
+  y.bar <- mean(y, na.rm = TRUE)
+  S.xx <- sum((x - x.bar)^2, na.rm = TRUE)
+  S.xy <- sum((x - x.bar) * (y - y.bar), na.rm = TRUE)
+  
+  b0.hat <- y.bar - x.bar * S.xy / S.xx
+  b1.hat <- S.xy / S.xx
+  
+  y.adj <- b0.hat + b1.hat * x
+  residuos <- y - y.adj
+  sigma2.hat <- sum(residuos^2) / (length(residuos) - 2)
+
+  return(list(b0.hat = b0.hat, b1.hat = b1.hat, sigma2.hat = sigma2.hat, sxx = S.xx))
+}
+```
+
+
+```{r, echo = TRUE}
+beta0 <- rls(ingresos$ANIOS_ESC, ingresos$ING_X_HRS)$b0.hat
+beta1 <- rls(ingresos$ANIOS_ESC, ingresos$ING_X_HRS)$b1.hat
+sigma2 <- rls(ingresos$ANIOS_ESC, ingresos$ING_X_HRS)$sigma2.hat
+sxx <- rls(ingresos$ANIOS_ESC, ingresos$ING_X_HRS)$sxx
+n <- nrow(ingresos) # pues no hay valores perdidos
+sum_x2 <- sum((ingresos$ANIOS_ESC)^2)
+varBeta0 = (sigma2*sum_x2)/(n*sxx)
+varBeta1 = sigma2/sxx
+```
+
+\begin{align*}
+\hat\beta_0 &= `r beta0`, \\
+\hat\beta_1 &= `r beta1`, \\
+\hat\sigma^2 &= `r sigma2`, \\
+S_{xx} &= `r sxx`, \\
+n &= `r n`, \\
+\sum_{1}^{n}{x_{i}^2} &= `r sum_x2`, \\
+V(\beta_0) &= `r varBeta0`, \\
+V(\beta_1) &= `r varBeta1`
+\end{align*}
+
+## Inciso 3.a Método de Bonferroni
+Los intervalos simultáneos de confianza en el método Bonferroni se definen como sigue (con el $100 \times(1-\frac{\alpha}{2})$ de confianza para cada intervalo):
+
+\begin{align*}
+\hat\beta_0 \pm t_{n-2}^{1-\frac{\alpha}{4}} \sqrt{\hat{V}(\beta_0)}
+\end{align*}
+
+
+```{r, echo = TRUE}
+LI_beta0_bonf = beta0 - qt(1-(.5/4), n-2) * sqrt(varBeta0) 
+LS_beta0_bonf = beta0 + qt(1-(.5/4), n-2) * sqrt(varBeta0)
+  
+for(i in c(9, 15, 19)){
+  LI_beta1_bonf = i*beta1 - qt(1-(.5/4), n-2) * sqrt(varBeta1)
+  LS_beta1_bonf = i*beta1 + qt(1-(.5/4), n-2) * sqrt(varBeta1)
+
+  cat(
+  paste0("\n\r", " Los intervalos simultáneos de confianza para beta0 y beta_1,",
+         "calculados por\nel método de Hotelling-Scheffé, para la media de",
+         "ingreso por hora para\n", i,
+         " años de escolaridad son:\n(",
+         LI_beta0_bonf, ", ", LS_beta0_bonf, ") y\n(",
+         LI_beta1_bonf, ", ",LS_beta1_bonf, "), respectivamente."))
+}
+
+```
+
+## Inciso 3.b Método de Hotelling-Scheffé
+En este caso, tenemos que los intervalos simultáneos de confianza están dados por la siguiente expresión:
+
+$a_0\hat\beta_0 + a_1\hat\beta_1 \pm \sqrt{ 2 F_{(2, n-2)}^{1-\alpha} + \frac{a_{0}^2}{n} + \frac{a_1 - a_{0} \bar{x_n}}{S_{xx}} \hat\sigma_{mco} }$
+
+```{r, echo = TRUE}
+#options(Encoding="UTF-8")
+LI_beta0_hs = beta0 - sqrt(2*qf(1-0.25, 2, n-2))* sqrt(varBeta0)
+LS_beta0_hs =beta0 + sqrt(2*qf(1-0.25, 2, n-2))* sqrt(varBeta0)
+  
+for(i in c(9, 15, 19)){
+  LI_beta1_hs = i*beta1 - sqrt(2*qf(1-0.25, 2, n-2))* sqrt(varBeta1)
+  LS_beta1_hs = i*beta1 + sqrt(2*qf(1-0.25, 2, n-2))* sqrt(varBeta1)
+
+  cat(
+  paste0("\n\r", " Los intervalos simultáneos de confianza para beta0 y beta_1",
+         "calculados por\nel método de Hotelling-Scheffé, para la media de",
+         "ingreso por hora para\n", i, 
+         "años de escolaridad son:\n(",
+         LI_beta0_hs, ", ", LS_beta0_hs, ") y\n(",
+         LI_beta1_hs, ", ", LS_beta1_hs, "), respectivamente."))
+  
+  }
+```
+
 # Ejercicio 4
 El conjunto de datos `airquality`, de paquete datasets de R contiene información sobre la calidad
 del aire en Nueva York registrada de Mayo a Septiembre de $1973$ (se pude consultar más información
