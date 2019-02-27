@@ -341,18 +341,24 @@ involucró el ajuste de modelos de regresión a grandes conjuntos de datos. Entr
 y sometieron un manuscrito a una revista de entomología. El escrito contenía varias gráficas de
 dispersión mostrando la recta de regresión ajustada y las bandas de confianza $95\%$ para la verdadera recta de regresión calculadas con los IC individuales, así como los datos observados. Uno de los revisores del manuscrito hizo la siguiente observación:
 
-No puedo entender cómo el $95\%$ de las observaciones cae fuera &nbsp;
- &nbsp; de las bandas de confianza $95\%$ que se muestran en las figuras
+> *No puedo entender cómo el $95\%$ de las observaciones cae fuera de las bandas de confianza $95\%$ que se muestran en las figuras*
+
+Dar una respuesta breve del porqué es posible que el $95\%$ de las observaciones caigan fuera de las bandas de confianza $95\%$  que se muestran en las figuras.
+
+Esto sucede por el carácter de las bandas, estas nos indican la posibilidad de que la verdadera línea de regresión esté dentro con un $95\%$  de confianza, es decir, que la verdadera recta de regresión debe caer un $95\%$  de las veces dentro de esta banda. Por lo que interpretar las observaciones con respecto a esta banda carece de sentido y no necesariamente estos valores corresponderán a estas bandas.
 
 #Ejercicio 6
 
 (Ross) Suponer que se tiene el siguiente conjunto de datos donde x representa la humedad de una
 mezcla fresca de un determinado producto y y la densidad del producto terminado.
 
-\begin{table}[]
-\begin{tabular}{lllllllll}
-x & 5   & 6   & 7    & 10   & 12   & 15   & 18   & 20   \\
-y & 7.4 & 9.3 & 10.6 & 15.4 & 18.1 & 22.2 & 24.1 & 24.8
+\begin{table}[H]
+\centering
+\begin{tabular}{l|cccccccc}
+\toprule
+x & 5   & 6   & 7    & 10   & 12   & 15   & 18   & 20   \\ \midrule
+y & 7.4 & 9.3 & 10.6 & 15.4 & 18.1 & 22.2 & 24.1 & 24.8 \\
+\bottomrule
 \end{tabular}
 \end{table}
 
