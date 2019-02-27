@@ -12,7 +12,7 @@ output:
     toc: false
     number_sections: false
     fig_caption: true
-    highlight: kate
+    highlight: tango
     df_print: kable
     includes:
       in_header: tex/header.tex
@@ -23,7 +23,7 @@ fig_align: "center"
 ---
 
 ```{r setup, include = FALSE, eval = TRUE}
-knitr::opts_chunk$set(echo = FALSE, eval = TRUE, fig.height = 3)
+knitr::opts_chunk$set(echo = FALSE, eval = TRUE, fig.height = 5)
 
 # Se cargan las librerias y los datos que se utilizarán
 library(tidyverse)
@@ -50,8 +50,8 @@ Donde:
 
 
 #Ejercicio 2
-Mostrar la desigualdad de Bonferroni. Si $E_1,\ldots ,E_k$ son eventos en un espacio de probabilidad
-$(\omega, A, P)$ entonces:
+Mostrar la desigualdad de Bonferroni. Si $E_1,\ldots , E_k$ son eventos en un espacio de probabilidad
+$(\Omega, A, P)$ entonces:
 \begin{align*}
 P\left(\bigcap\limits_{i = 1}^k E_i \right) \geqslant 1- \sum_{i = 1}^k P(\Omega \setminus E_i) 
 \end{align*}
@@ -97,20 +97,123 @@ de las notas. Reportar intervalos simultáneos de confianza $95\%$ para las medi
 hora para $9$, $15$ y $19$ años de escolaridad a) con el método de Bonferroni y b) con el método de
 Hotelling$-$Scheffé
 
-#Ejercicio 4
-El conjunto de datos $airquality$, de paquete datasets de R contiene información sobre la calidad
+# Ejercicio 4
+El conjunto de datos `airquality`, de paquete datasets de R contiene información sobre la calidad
 del aire en Nueva York registrada de Mayo a Septiembre de $1973$ (se pude consultar más información
-con el comando help(airquality). Para responder este ejercicio, descartar las observaciones con
+con el comando `help("airquality")`. Para responder este ejercicio, descartar las observaciones con
 valores perdidos.
 
-## a
+## Inciso 4.a
 Ajustar un modelo RLS para explicar el nivel de ozono como función del $log_2$ de la velocidad
 del viento. Reportar las estimaciones de los parámetros.
 
-## b
+```{r, echo = TRUE}
+library(tidyverse)
+
+modelo_air <- airquality %>% 
+              as_tibble() %>% 
+              filter(!is.na(Ozone), !is.na(Wind)) %>% 
+              mutate(log2_Wind = log2(Wind)) %>% 
+              lm(formula = Ozone ~ log2_Wind)
+
+coefficients(modelo_air)
+```
+
+## Inciso 4.b
 Mostrar una gráfica de dispersión de los datos utilizados para ajustar el modelo del inciso
 anterior, la recta de regresión ajustada y bandas de confianza $95\%$. Anexar el código relacionado
 con el cómputo de las bandas de confinza.
+
+```{r, echo = TRUE}
+# Código para el cálculo de los intervalos de confianza para el módelo RLS
+bandas_confianza_rls <- function(datos, variable_x, variable_y,
+                                 formula_rls, alpha = 0.95) {
+  # Función que calcula las bandas de confianza para el modelo RLS
+  # usando el método de Hotelling-Scheffé
+  
+  datos <- datos %>% 
+           as_tibble()
+  
+  variable_x <- enquo(variable_x)
+  variable_y <- enquo(variable_y)
+  
+  # Se calcula el modelo RLS
+  modelo <- datos %>% 
+            lm(formula = formula_rls)
+  
+  # número de observaciones
+  n <- nrow(datos) 
+  
+  # estimador de beta0
+  b0.hat <- coefficients(modelo)[1] 
+  
+  # estimador de beta1
+  b1.hat <- coefficients(modelo)[2] 
+  
+  # estimador sigma2
+  s2.hat <- (summary(modelo)$sigma)^2
+  
+  # Se calculan la media y la varianza de X
+  datos_summary <- datos %>% 
+                   summarise(x.bar = mean(!! variable_x),
+                             S.xx = sum((!! variable_x - mean(!! variable_x))^2))
+                   
+  # Se extrae la media x
+  x.bar <- datos_summary %>% 
+          pull(x.bar)
+  
+  # Se extrae la varianza de x
+  S.xx <- datos_summary %>% 
+          pull(S.xx)
+  
+  # Se obtiene el quantil de la distribución F(2, n - 2),
+  # con un nivel de confianza alpha
+  fa <- qf(alpha, 2, n - 2)
+  
+  # Se calculan las bandas de confianza
+  resultado <- datos %>% 
+               mutate(y.hat = b0.hat + b1.hat * !! variable_x,
+                      banda_superior = y.hat + sqrt(2*fa*s2.hat)*
+                                      sqrt(1/n + (!! variable_x-x.bar)^2/S.xx),
+                      banda_inferior = y.hat - sqrt(2*fa*s2.hat)*
+                                      sqrt(1/n + (!! variable_x-x.bar)^2/S.xx))
+  return(resultado)
+}
+
+airquality %>% 
+  as_tibble() %>% 
+  select(Ozone, Wind) %>% 
+  filter(!is.na(Ozone), !is.na(Wind)) %>% 
+  mutate(log2_Wind = log2(Wind)) %>% 
+  bandas_confianza_rls(variable_x = log2_Wind, variable_y = Ozone,
+                       formula_rls = Ozone ~ log2_Wind) %>% 
+  head(10) %>% 
+  knitr::kable(format = "latex", booktabs = TRUE, longtable = TRUE, linesep = "",
+               caption = "Estimaciones y bandas de confianza al 95\\%")
+```
+
+
+```{r}
+library(latex2exp)
+
+airquality %>% 
+  as_tibble() %>% 
+  filter(!is.na(Ozone), !is.na(Wind)) %>% 
+  mutate(log2_Wind = log2(Wind)) %>% 
+  bandas_confianza_rls(variable_x = log2_Wind, variable_y = Ozone, formula_rls = Ozone ~ log2_Wind) %>% 
+  ggplot(aes(x = log2_Wind)) +
+  geom_point(aes(y = Ozone, color = "Observaciones")) +
+  geom_line(aes(y = y.hat, group = 1, color = "Estimación")) +
+  geom_ribbon(aes(ymin = banda_inferior, ymax = banda_superior), alpha = 0.3) +
+  labs(title = TeX("Ozono vs $\\log_2 (Wind)$"),
+       x = TeX("$\\log_2(Wind)$"),
+       y = "Ozone") +
+  scale_color_manual(values = c("Steelblue", "black")) +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "top",
+        legend.title = element_blank())
+```
+
 
 #Ejercicio 5
 (Sheater) Un estadístico colaboró en un proyecto de investigación con dos entomólogos. El análisis
