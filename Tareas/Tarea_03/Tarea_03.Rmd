@@ -48,6 +48,24 @@ Donde:
 \item $S_{yy}= \displaystyle\sum_i^n(y_i-\bar{y_n})^2$
 \end{itemize}
 
+Entonces:
+
+\begin{equation}
+    \begin{split}
+    \notag SCE &= \sum_{i=1}^{n} \left( y_i-\bar{\beta}_0-\bar{\beta}_1x_i \right)^2 = \sum_{i=1}^{n} \left( y_i-\left( \bar{y}_n-\frac{S_{xy}\bar{x}_n}{S_{xx}} \right)-\frac{S_{xy}}{S_{xx}}x_i \right)^2 = \sum_{i=1}^{n} \left( y_i-\bar{y}_n+\frac{S_{xy}\bar{x}_n-S{xy}x_i}{S_xx} \right)^2\\
+    &= \sum_{i=1}^{n} \left( \left( y_i-\bar{y}_n \right)-\frac{S{xy}\left( x_i-\bar{x}_n \right)}{S{xx}} \right)^2 = \sum_{i=1}^{n} \left( \left( y_i-\bar{y}_n \right)^2-2\left( y_i-\bar{y}_n \right)\left( x_i-\bar{x}_n \right)\frac{S_{xy}}{S_{xx}}+\frac{S{xy}^2\left( x_i-\bar{x}_n \right)^2}{S_{xx}^2} \right)\\
+    &= \sum_{i=1}^{n}\left( y_i-\bar{y}_n \right)^2-2\frac{S_{xy}}{S_{xx}}\sum_{i=1}^{n}\left( y_i-\bar{y}_n \right)\left( x_i-\bar{x}_n \right)+\frac{S_{xy}^2}{S_{xx}^2}\sum_{i=1}^{n}\left( x_i-\bar{x}_n \right)^2 = S_{yy}-2\frac{S_{xy}S_{xy}}{S_{xx}}+\frac{S_{xy}^2S_{xx}}{S_{xx}^2}\\
+    &= S_{yy}-2\frac{S_{xy}^2}{S_{xx}}+\frac{S_{xy}^2}{S_{xx}} = \frac{S_{xx}S_{yy}-2S_{xy}^2+S_{xy}^2}{S_{xx}} = \frac{S_{xx}S_{yy}-S_{xy}^2}{S_{xx}}
+    \end{split}
+    \end{equation}
+    
+Por lo tanto
+
+\begin{equation}
+    \begin{split}
+    \notag SCE = \frac{S_{xx}S_{yy}-S_{xy}^2}{S_{xx}}
+    \end{split}
+    \end{equation}
 
 #Ejercicio 2
 Mostrar la desigualdad de Bonferroni. Si $E_1,\ldots , E_k$ son eventos en un espacio de probabilidad
