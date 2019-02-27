@@ -144,23 +144,20 @@ con el cómputo de las bandas de confinza.
 
 ```{r, echo = TRUE}
 # Código para el cálculo de los intervalos de confianza para el módelo RLS
-bandas_confianza_rls <- function(datos, variable_x, variable_y,
-                                 formula_rls, alpha = 0.95) {
+bandas_confianza_rls <- function(datos, formula_rls, alpha = 0.95) {
   # Función que calcula las bandas de confianza para el modelo RLS
   # usando el método de Hotelling-Scheffé
   
   datos <- datos %>% 
            as_tibble()
   
+  # Se extrae la variable independiante (X) de la formula de RLS
+  variable_x <- formula_rls[[3]] 
   variable_x <- enquo(variable_x)
-  variable_y <- enquo(variable_y)
   
   # Se calcula el modelo RLS
   modelo <- datos %>% 
             lm(formula = formula_rls)
-  
-  # número de observaciones
-  n <- nrow(datos) 
   
   # estimador de beta0
   b0.hat <- coefficients(modelo)[1] 
@@ -171,54 +168,64 @@ bandas_confianza_rls <- function(datos, variable_x, variable_y,
   # estimador sigma2
   s2.hat <- (summary(modelo)$sigma)^2
   
-  # Se calculan la media y la varianza de X
-  datos_summary <- datos %>% 
-                   summarise(x.bar = mean(!! variable_x),
-                             S.xx = sum((!! variable_x - mean(!! variable_x))^2))
-                   
-  # Se extrae la media x
-  x.bar <- datos_summary %>% 
-          pull(x.bar)
-  
-  # Se extrae la varianza de x
-  S.xx <- datos_summary %>% 
-          pull(S.xx)
-  
-  # Se obtiene el quantil de la distribución F(2, n - 2),
-  # con un nivel de confianza alpha
-  fa <- qf(alpha, 2, n - 2)
-  
   # Se calculan las bandas de confianza
   resultado <- datos %>% 
-               mutate(y.hat = b0.hat + b1.hat * !! variable_x,
+               mutate(# Se obtienen el número de observaciones
+                      n = n(),
+                      # Se obtiene el quantil de la distribución F(2, n - 2),
+                      # con un nivel de confianza alpha
+                      fa = qf(alpha, 2, n - 2),
+                      # Se calcula la estimación de y
+                      y.hat = b0.hat + b1.hat * !! variable_x,
+                      # Se calcula la media x
+                      x.bar = mean(!! variable_x),
+                      # Se calcula la varianza de x
+                      S.xx = sum((!! variable_x - mean(!! variable_x))^2),
+                      # Se calculan los límites de la banda de confianza
                       banda_superior = y.hat + sqrt(2*fa*s2.hat)*
-                                      sqrt(1/n + (!! variable_x-x.bar)^2/S.xx),
+                                    sqrt(1/n + (!! variable_x-x.bar)^2/S.xx),
                       banda_inferior = y.hat - sqrt(2*fa*s2.hat)*
-                                      sqrt(1/n + (!! variable_x-x.bar)^2/S.xx))
+                                    sqrt(1/n + (!! variable_x-x.bar)^2/S.xx)) %>% 
+               select(-c(n, fa, x.bar, S.xx))
+  
   return(resultado)
 }
+```
 
+A contunación se muestra la tabla con los resultados de $\hat{y}$ y los límites inferior y superior de la banda de confianza para el modelo RLS.
+
+```{r, echo = TRUE, eval = FALSE}
 airquality %>% 
   as_tibble() %>% 
   select(Ozone, Wind) %>% 
   filter(!is.na(Ozone), !is.na(Wind)) %>% 
   mutate(log2_Wind = log2(Wind)) %>% 
-  bandas_confianza_rls(variable_x = log2_Wind, variable_y = Ozone,
-                       formula_rls = Ozone ~ log2_Wind) %>% 
-  head(10) %>% 
-  knitr::kable(format = "latex", booktabs = TRUE, longtable = TRUE, linesep = "",
-               caption = "Estimaciones y bandas de confianza al 95\\%")
+  bandas_confianza_rls(formula_rls = Ozone ~ log2_Wind)
 ```
 
+```{r}
+airquality %>% 
+  as_tibble() %>% 
+  select(Ozone, Wind) %>% 
+  filter(!is.na(Ozone), !is.na(Wind)) %>% 
+  mutate(log2_Wind = log2(Wind)) %>% 
+  bandas_confianza_rls(formula_rls = Ozone ~ log2_Wind) %>% 
+  knitr::kable(format = "latex", booktabs = TRUE, longtable = TRUE, linesep = "",
+               escape = FALSE, digits = 2,
+               caption = "Estimaciones y bandas de confianza al 95\\%",
+               col.names = c("Ozone", "Wind", "$\\log_2 (\\text{Wind})$",
+                             "$\\widehat{\\text{Ozone}}$", "Inferior", "Superior")) %>% 
+  row_spec(0, align = "c") %>% 
+  add_header_above(c("", "", "", "", "Banda de confianza" = 2)) %>%
+  kableExtra::kable_styling(latex_options = c("striped", "repeat_header"))
+```
 
 ```{r}
-library(latex2exp)
-
 airquality %>% 
   as_tibble() %>% 
   filter(!is.na(Ozone), !is.na(Wind)) %>% 
   mutate(log2_Wind = log2(Wind)) %>% 
-  bandas_confianza_rls(variable_x = log2_Wind, variable_y = Ozone, formula_rls = Ozone ~ log2_Wind) %>% 
+  bandas_confianza_rls(formula_rls = Ozone ~ log2_Wind) %>% 
   ggplot(aes(x = log2_Wind)) +
   geom_point(aes(y = Ozone, color = "Observaciones")) +
   geom_line(aes(y = y.hat, group = 1, color = "Estimación")) +
@@ -256,16 +263,16 @@ y & 7.4 & 9.3 & 10.6 & 15.4 & 18.1 & 22.2 & 24.1 & 24.8
 
 Ajustar un modelo RLS a los datos anteriores y responder lo siguiente.
 
-## a
+## Inciso 6.a
 Reportar la estimación puntual de $\sigma^2$ e interpretar el resultado en cuanto a la utilidad del
 modelo RLS ajustado.
 
-## b 
+## Inciso 6.b 
 Reportar el IC $90\%$ para $\sigma^2$ con los cuantiles simétricos y su longitud.
 
-## c
+## Inciso 6.c
 Indicar cuáles son los cuantiles que proporcionan el IC $90\%$ para $\sigma^2$  de menor longitud.
 
-## d
+## Inciso 6.d
 Reportar el IC $90\%$ para $\sigma^2$ de menor longitud y compararlo con el intervalo del inciso
 $a$).
