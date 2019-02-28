@@ -364,16 +364,97 @@ y & 7.4 & 9.3 & 10.6 & 15.4 & 18.1 & 22.2 & 24.1 & 24.8 \\
 
 Ajustar un modelo RLS a los datos anteriores y responder lo siguiente.
 
+```{r}
+#El modelo RLS
+datos_ross <- tibble(x.H = c(5,6,7,10,12,15,18,20),
+                     y.D = c(7.4, 9.3, 10.6, 15.4, 18.1, 22.2, 24.1, 24.8))
+```
+
 ## Inciso 6.a
-Reportar la estimación puntual de $\sigma^2$ e interpretar el resultado en cuanto a la utilidad del
-modelo RLS ajustado.
+Reportar la estimación puntual de $\sigma^2$ e interpretar el resultado en cuanto a la utilidad del modelo RLS ajustado.
+
+```{r}
+#función regresión
+rg <- datos_ross %>% 
+      lm(formula = y.D ~ x.H)
+sigma2 <- summary(rg)$sigma^2
+```
+
+```{r, fig.height = 3} 
+datos_ross %>% 
+  bandas_confianza_rls(formula_rls = y.D ~ x.H) %>% 
+  ggplot(aes(x = x.H)) +
+  geom_point(aes(y = y.D, color = "Observaciones")) +
+  geom_line(aes(y = y.hat, group = 1, color = "Estimación")) +
+  labs(x = TeX("Humedad"),
+       y = "Densidad") +
+  scale_color_manual(values = c("Steelblue", "black")) +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "top",
+        legend.title = element_blank())
+```
+
+Del análisis exploratorio se puede esperar que haya una correlación positiva, esto es que la variable humedad y la variabale densidad del producto están relacionadas de forma directa.
+
+Ahora del resultado de la estimación puntual tenemos: $\sigma^2 = `r sigma2`$, esto es, $\sigma = `r sqrt(sigma2)`$. Esto quiere decir que por cada incremento de una unidad (en la escala de medición asociada a la humedad) se tiene, en promedio, un incremento de $`r sqrt(sigma2)`$ unidades en la densidad asociada al producto terminado.
 
 ## Inciso 6.b 
 Reportar el IC $90\%$ para $\sigma^2$ con los cuantiles simétricos y su longitud.
 
+```{r}
+#calculamos el intervalo de confianza para $\sigma^2$ con la expresión 
+#vista en clase, y calculamos así los  IC
+hat.s2 <- summary(rg)$sigma^2
+hat.s2
+
+I.s2 <-(8-2)*hat.s2 / qchisq(0.95, 8 -2)
+S.s2 <-(8-2)*hat.s2 / qchisq(0.05, 8 -2)
+
+IC <- c(I.s2, S.s2)
+longitud_IC <- IC[2] - IC[1]
+```
+
+El intervalo para $sigma^2$ con un $90\%$ de confianzaes $\mathrm{IC}_{\sigma^2} = \left( `r IC[1]`, `r IC[2]` \right)$, por lo que tiene una longitud de $`r longitud_IC`$ unidades de densidad.
+
 ## Inciso 6.c
 Indicar cuáles son los cuantiles que proporcionan el IC $90\%$ para $\sigma^2$  de menor longitud.
+
+```{r}
+gl <- df.residual(rg)
+tibble(quantil1 = seq(from = 0.005, to = 0.1, by = 0.001)) %>% 
+  mutate(sigma2 = hat.s2,
+         iteracion = row_number(),
+         quantil2 = quantil1 + 0.9) %>% 
+  mutate(inferior = gl*hat.s2 / qchisq(quantil2, gl),
+         superior = gl*hat.s2 / qchisq(quantil1, gl),
+         longitud = superior - inferior) %>% 
+  ggplot(aes(x = quantil1, group = 1)) +
+  geom_ribbon(aes(ymin = inferior, ymax = superior), alpha = 0.3) +
+  geom_line(aes(y = sigma2, color = "s2")) +
+  geom_line(aes(y = longitud, color = "Longitud IC")) +
+  labs(x = "Cuantil",
+       y = TeX("$\\sigma^2$")) +
+  scale_color_manual(values = c("firebrick", "steelblue"),
+                     labels = c("Intervalo de Confianza", expression(sigma^2))) +
+  theme(legend.position = "top")
+```
+
+Podemos apreciar que el mínimo se da en el cuantil $0.095$ por lo que el otro cuantil (para generar un intervalos dle $90\%$) es $0.995$.
 
 ## Inciso 6.d
 Reportar el IC $90\%$ para $\sigma^2$ de menor longitud y compararlo con el intervalo del inciso
 $a$).
+
+```{r}
+I.s2 <-(8-2)*hat.s2 / qchisq(0.095, 8 -2)
+S.s2 <-(8-2)*hat.s2 / qchisq(0.995, 8 -2)
+
+IC <- c(I.s2, S.s2)
+longitud_IC2 <- abs(IC[2] - IC[1])
+
+diferencia_IC <- round(100*((longitud_IC/longitud_IC2) - 1), 2)
+```
+
+PAra los cuantiles $0.095$ y $0.995$ que generarn el intervalo de confianza de menor longitud, se obtiene una longitud de $`r longitud_IC2`$.
+
+En comparación con el intervalo del inciso $a)$, no indica que el intervalo encontrado en dicho inciso es un $`r diferencia_IC`\%$ más grande que el de menor longitud.
