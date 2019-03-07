@@ -1,0 +1,122 @@
+---
+title: "Métodos de diseño y Análisis de Experimentos"
+subtitle: "Tarea 02"
+author:
+  - "Rivera Torres Francisco de Jesús"
+  - "Rodríguez Maya Jorge Daniel"
+  - "Samayoa Donado Víctor Augusto"
+  - "Trujillo Bariios Georgina"
+date: "Marzo 06, 2019"
+output:
+  pdf_document:
+    toc: false
+    number_sections: true
+    fig_caption: true
+    highlight: kate
+    df_print: kable
+    includes:
+      in_header: tex/header.tex
+fontsize: 11pt
+documentclass: article
+classoption: twoside
+fig_align: "center"
+---
+
+```{r setup, include = FALSE, eval = TRUE}
+knitr::opts_chunk$set(echo = FALSE, eval = TRUE, fig.height = 3)
+
+# Se cargan las librerias a utilizar
+library(tidyverse)
+library(readxl)
+library(scales)
+library(grid)
+library(kableExtra)
+library(latex2exp)
+```
+
+# 1. ----------------------------------------------------------------------
+
+
+
+# 2. ----------------------------------------------------------------------
+
+
+
+# 3. Los siguientes datos representan la relación entre el número de errores de alineación y el número de remaches faltantes para 10 diferentes aeronaves
+
+remaches <-  c(13, 15, 10, 22, 30, 7, 25, 16, 20, 15)
+errores <- c(7, 7, 5, 12, 15, 2, 13, 9, 11, 8)
+aeronaves <- data.frame(remaches, errores)
+
+# 4. Utilizar el conjunto de datos que se envía adjunto para responder lo siguiente.
+```{r}
+cancer <- read.table("tarea_cancer.csv", header = TRUE, sep = ",")
+```
+
+## a) Graficar un diagrama de dispersión del número de cigarros por persona (variable cigarrette) contra la tasa de muertes por cáncer de pulmón (por cada 100, 000 habitantes, variable lung). ¿La gráfica indica la posibilidad de una asociación lineal entre las variables?
+
+```{r}
+    plot(cancer$cigarrette, cancer$lung, main="Diagrama de dispersión",
+         xlab="número de cigarros por persona", ylab="tasa de muerte por cáncer de pulmón", pch=19)
+```
+
+La gráfica muestra que hay una asociación positiva entre el número de cigarros por persona y la tasa de muerte por cada mil habitantes causada por cáncer de pulmón.
+
+
+## b) Ajustar un modelo RLS para explicar la distribución de lung como función de cigarrettes. Reportar las estimaciones de los coeficientes e interpretarlos en el contexto de los datos.
+
+```{r}
+rls <- lm(lung ~ cigarrettes, cancer)
+beta0 <- coef(rls)["(Intercept)"]
+beta1 <- coef(rls)["cigarrettes"]
+```
+
+El valor del intercepto $\beta_{0} =$ `r beta0` podría interpretarse como la tasa de muertes por cáncer de pulmón (por cada $100000$ habitantes) dado que en el estado observado el promedio o número de cigarros por persona es cero. Esto puede tener sentido debido a que fumar tabaco puede no ser la única causa de cáncer de pulmón. 
+El valor de $\beta_{1}=$ `r beta1` por su parte indica que un incremento de un cigarro más a nivel estatal incrementaría la tasa de muerte por cáncer de pulmón en $0.0052$. 
+
+## c) Construir la tabla ANOVA para la hipótesis de significancia del efecto del número de cigarros por persona en la tasa de muertes por cáncer de pulmón.
+`bquote(H[0] : b[0] == 1 vs. H[1]: != 1)`
+
+```{r}
+cancer$desvMedia <- (cancer$lung - mean(cancer$lung))^2
+cancer$lungEstim <- beta0 + beta1*cancer$lung
+cancer$desvEstim <- (cancer$lungEstim-mean(cancer$lung))^2
+cancer$errorEsti <- (cancer$lung-cancer$lungEstim)^2 
+SCT=sum(cancer$desvMedia)
+SCR=sum(cancer$desvEstim)
+SCE=sum(cancer$errorEsti)
+```
+
+La suma de cuadrados total es `r SCT`
+La suma de cuadrados de regresión es `r SCR`
+La suma de cuadrados del error es `r SCE`
+
+```{r}
+
+anova <- data.frame("Fuentes Variación" = c('regresión', 'error', 'total'),
+                    "Grados de Libertad" = c(1, nrow(cancer)-2, nrow(cancer)-1), 
+                    "Suma de Cuadrados" = c(round(SCR,2), round(SCE,2), round(SCT, 0)),
+                    "Cuadrados Medios" = c(round(SCR/1,2), round(SCE/nrow(cancer)-2, 2), NA),
+                    "Prueba F" = c(SCR/(SCE/nrow(cancer)-2), NA, NA))
+
+knitr::kable(anova, caption = "ANOVA")
+```
+
+
+
+## d) Concluir sobre la significancia del modelo si se utiliza un tamaño de prueba de 0.05. Reportar el p-value de la prueba.
+
+Rechazamos la prueba $H_{0}:\beta_{1}=0$ si el valor de $F >F_{(1,n-2)}^{(1-\alpha)}$
+
+```{r}
+estadisticoF <- df(1-0.05, 1, nrow(cancer)-2)
+```
+
+`r 'F =' SCR/(SCE/nrow(cancer)-2` $>$ `r estadisticoF`,por lo tanto con un tamaño de prueba $\alpha=0.05$ rechazamos la hipótesis nula. En otras palabras, los datos aportan evidencia estadísticamente significativa sobre la relación entre tasa de muerte por cáncer de pulmón y número de cigarros por persona.
+
+# 5. ----------------------------------------------------------------------
+
+
+
+# 6. ----------------------------------------------------------------------
+
