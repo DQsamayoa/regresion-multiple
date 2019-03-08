@@ -86,9 +86,94 @@ Pdemos decir que el modelo tiene una asociación lineal inversa fuerte entre las
 
 # 3. Los siguientes datos representan la relación entre el número de errores de alineación y el número de remaches faltantes para 10 diferentes aeronaves
 
-remaches <-  c(13, 15, 10, 22, 30, 7, 25, 16, 20, 15)
-errores <- c(7, 7, 5, 12, 15, 2, 13, 9, 11, 8)
-aeronaves <- data.frame(remaches, errores)
+Los siguientes datos representan la relación entre el número de alineación y el número de remaches faltantes para $10$ diferentes aeronaves.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+\hline
+Num. remaches (x) & 13 & 15 & 10 & 22 & 30 & 7 & 25 & 15 & 20 & 15 \\ \hline
+Num. errores (x) & 7 & 7 & 5 & 12 & 15 & 2 & 13 & 9 & 11 & 8 \\ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{enumerate}
+
+\item Ajustar un modelo RLS e interpretar las estimaciones de los coeficientes del modelo.
+
+```{r, echo = TRUE}
+num_remaches <- c(13, 15, 10, 22, 30, 7, 25, 16, 20, 15)
+num_errores <- c(7, 7, 5, 12, 15, 2, 13, 9, 11, 8)
+aeronaves <- data.frame(num_remaches, num_errores)
+modelo <- lm(num_errores~num_remaches, data = aeronaves)
+summary(modelo)$coefficients
+```
+
+Para el coeficiente $\beta_0$ se tiene un número negativo, lo que nos indica que tendriamos $-0.6639$ errores cuando no tenemos remaches y para el coeficiente $\beta_1$ podemos interpretar que tenemos aproximadamente la mitad de errores según la cantidad de remaches
+
+\item Graficar el diagrama de dispersión de los datos y sobreponer la recta de regresión ajustada.
+
+```{r, echo = TRUE}
+plot(num_errores~num_remaches, data = aeronaves, xlab = "Número de Remaches",
+     ylab = "Número de Errores")
+abline(modelo, col = "blue", lwd = 2)
+```
+
+\item Reportar el $R^2$ del modelo ajustado. ¿La interpretación del $R^2$ es consistente con la gráfica del inciso anterior?
+
+```{r, echo = TRUE}
+summary(modelo)$r.squared
+```
+
+Obtenemos una $R^2$ de $0.9683$ lo que nos indica que sí es consistente puesto que el modelo se ajusta bien en la grafica de dispersión.
+
+\item Contrastar las hipótesis
+
+\begin{equation}
+    \begin{split}
+    \notag H_0 : \beta_0 = 1 \quad \text{v.s.} \quad H_1 : \beta_0 \not = 1
+    \end{split}
+\end{equation}
+
+Utilizar el tamaño de prueba $\alpha = 0.1$. Interpretar el resultado en el contexto del problema.
+
+```{r, echo = TRUE}
+#calculamos el estadistico de prueba
+b_0 <- 1
+v.b_0.est <- vcov(modelo)[1,1]
+b_0.est<-summary(modelo)$coefficients[1,1]
+T <- (b_0.est - b_0)/v.b_0.est
+
+#cuantil de t (n-2)
+t <- qt(1-.1/2, df.residual(modelo))
+T
+t
+```
+
+Como $3.88 = |T|>t = 1.85$ rechazamos $H_o$, es decir que en el modelo $\beta_0$ debe ser diferente de 1 en el contexto del problema nos indica que no podemos obtener errores si no hay remaches.
+
+\item Estimar puntualmente el número esperado de errores de alineación de un avión con 24 remaches faltantes y construir un IC 90\%.\\
+
+Estimamos puntualmente:
+
+```{r, echo = TRUE}
+b_1.est <- summary(modelo)$coefficients[2,1]
+y.24 <- b_0.est+(b_1.est*24)
+y.24
+```
+
+La estimación es de 12.6 errores.
+
+Intervalos de confianza:
+
+```{r, echo = TRUE}
+s2.est <- summary(modelo)$sigma^2
+ta <- qt(0.95, n-2)
+IC.24 <- y.24+c(-1, 1)*ta*sqrt(s2.est)
+IC.24
+```
+
 
 # 4. Utilizar el conjunto de datos que se envía adjunto para responder lo siguiente.
 ```{r}
