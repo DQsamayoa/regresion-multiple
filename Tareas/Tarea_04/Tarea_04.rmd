@@ -1,6 +1,6 @@
 ---
-title: "Métodos de diseño y Análisis de Experimentos"
-subtitle: "Tarea 02"
+title: "Regresión múltiple y otras técnicas multivariadas"
+subtitle: "Tarea 04"
 author:
   - "Rivera Torres Francisco de Jesús"
   - "Rodríguez Maya Jorge Daniel"
@@ -10,7 +10,7 @@ date: "Marzo 06, 2019"
 output:
   pdf_document:
     toc: false
-    number_sections: true
+    number_sections: false
     fig_caption: true
     highlight: kate
     df_print: kable
@@ -23,7 +23,7 @@ fig_align: "center"
 ---
 
 ```{r setup, include = FALSE, eval = TRUE}
-knitr::opts_chunk$set(echo = FALSE, eval = TRUE, fig.height = 3)
+knitr::opts_chunk$set(echo = FALSE, eval = TRUE, fig.height = 4)
 
 # Se cargan las librerias a utilizar
 library(tidyverse)
@@ -34,24 +34,40 @@ library(kableExtra)
 library(latex2exp)
 ```
 
-# 1. ----------------------------------------------------------------------
+# Ejercicio 1
+Mostrar que, para el modelo RLS, se cumple $SCR = S_{xx} \hat{\beta}_1^2$.
 
+\begin{proof}
+Recordemos las siguientes identidades:
+\begin{align*}
+\hat{y}_i &\stackrel{(i)}{=} \hat{\beta}_0 + \hat{\beta}_1 x_i & \hat{\beta}_1 &\stackrel{(ii)}{=} \dfrac{S_{xy}}{S_{xx}} & \hat{\beta}_0 &\stackrel{(iii)}{=} \bar{y} - \dfrac{S_{xy}}{S_{xx}} \bar{x}
+\end{align*}
 
+Entonces tenemos que:
+\begin{align*}
+SCR
+&= \sum_{i = 1}^n \left(\hat{y}_i - \bar{y} \right)^2
+\stackrel{(i)}{=} \sum_{i = 1}^n \left(\hat{\beta}_0 + \hat{\beta}_1 x_i - \bar{y} \right)^2
+\stackrel{(ii), (iii)}{=} \sum_{i = 1}^n \left(\bar{y} - \dfrac{S_{xy}}{S_{xx}} \bar{x}+ \dfrac{S_{xy}}{S_{xx}} x_i - \bar{y} \right)^2 \\
+&= \sum_{i = 1}^n \left(\dfrac{S_{xy}}{S_{xx}} (x_i - \bar{x}) \right)^2
+= \sum_{i = 1}^n \left[\left(\dfrac{S_{xy}}{S_{xx}} \right)^2 (x_i - \bar{x})^2 \right]
+= \left(\dfrac{S_{xy}}{S_{xx}} \right)^2 \sum_{i = 1}^n (x_i - \bar{x})^2 \\
+&\stackrel{(ii)}{=} \hat{\beta}_1^2 S_{xx}
+\end{align*}
+\end{proof}
 
-# 2. \begin{enumerate}
+# Ejercicio 2
 
-\item Mostrar que, para el modelo RLS, se cumple
+## Inciso 2.a
+Mostrar que, para el modelo RLS, se cumple
+\begin{align*}
+F = \frac{R^2\left(n-2\right)}{1-R^2},
+\end{align*}
+donde F es el estadístico del ANOVA y $R^2$ es el coeficiente de determinación del modelo.
 
-\begin{equation}
-    \begin{split}
-    \notag F = \frac{R^2\left(n-2\right)}{1-R^2},
-    \end{split}
-\end{equation}
-
-donde F es el estadístico del ANOVA y $R^2$ es el coeficiente de determinación del modelo.\\
+\begin{proof}
 
 Sabemos que 
-
 \begin{equation}
     \begin{split}
     \notag R^2 =1- \frac{SCE}{SCT}, \quad F = \frac{SCR}{\frac{SCE}{(n-2)}} \quad \text{y} \quad SCT = SCR + SCE
@@ -75,32 +91,32 @@ Por lo tanto
     \notag F = \frac{R^2\left(n-2\right)}{1-R^2},
     \end{split}
 \end{equation}
+\end{proof}
 
-\item Suponer que para un conjunto de 20 pares de observaciones $(x, y), r=-0.74$. Si se ajusta un modelo RLS a estos datos, ¿que se puede decir sobre la significancia del modelo?\\
+## Inciso 2.b
+Suponer que para un conjunto de 20 pares de observaciones $(x, y), r=-0.74$. Si se ajusta un modelo RLS a estos datos, ¿que se puede decir sobre la significancia del modelo?
 
 Pdemos decir que el modelo tiene una asociación lineal inversa fuerte entre las observaciones $(x, y)$, es decir, si una crece la otra decrece.
 
-\end{enumerate}
-
-
-
-# 3. Los siguientes datos representan la relación entre el número de errores de alineación y el número de remaches faltantes para 10 diferentes aeronaves
+# Ejercicio 3
+Los siguientes datos representan la relación entre el número de errores de alineación y el número de remaches faltantes para 10 diferentes aeronaves
 
 Los siguientes datos representan la relación entre el número de alineación y el número de remaches faltantes para $10$ diferentes aeronaves.
 
 \begin{table}[htbp]
 \begin{center}
-\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
-\hline
-Num. remaches (x) & 13 & 15 & 10 & 22 & 30 & 7 & 25 & 15 & 20 & 15 \\ \hline
-Num. errores (x) & 7 & 7 & 5 & 12 & 15 & 2 & 13 & 9 & 11 & 8 \\ \hline
+\begin{tabular}{l|llllllllll}
+\toprule
+Num. remaches (x) & 13 & 15 & 10 & 22 & 30 & 7 & 25 & 15 & 20 & 15 \\
+\midrule
+Num. errores (x) & 7 & 7 & 5 & 12 & 15 & 2 & 13 & 9 & 11 & 8 \\
+\bottomrule
 \end{tabular}
 \end{center}
 \end{table}
 
-\begin{enumerate}
-
-\item Ajustar un modelo RLS e interpretar las estimaciones de los coeficientes del modelo.
+## Inciso 3.a
+Ajustar un modelo RLS e interpretar las estimaciones de los coeficientes del modelo.
 
 ```{r, echo = TRUE}
 num_remaches <- c(13, 15, 10, 22, 30, 7, 25, 16, 20, 15)
@@ -112,7 +128,8 @@ summary(modelo)$coefficients
 
 Para el coeficiente $\beta_0$ se tiene un número negativo, lo que nos indica que tendriamos $-0.6639$ errores cuando no tenemos remaches y para el coeficiente $\beta_1$ podemos interpretar que tenemos aproximadamente la mitad de errores según la cantidad de remaches
 
-\item Graficar el diagrama de dispersión de los datos y sobreponer la recta de regresión ajustada.
+## Inciso 3.b
+Graficar el diagrama de dispersión de los datos y sobreponer la recta de regresión ajustada.
 
 ```{r, echo = TRUE}
 plot(num_errores~num_remaches, data = aeronaves, xlab = "Número de Remaches",
@@ -120,7 +137,8 @@ plot(num_errores~num_remaches, data = aeronaves, xlab = "Número de Remaches",
 abline(modelo, col = "blue", lwd = 2)
 ```
 
-\item Reportar el $R^2$ del modelo ajustado. ¿La interpretación del $R^2$ es consistente con la gráfica del inciso anterior?
+## Inciso 3.c
+Reportar el $R^2$ del modelo ajustado. ¿La interpretación del $R^2$ es consistente con la gráfica del inciso anterior?
 
 ```{r, echo = TRUE}
 summary(modelo)$r.squared
@@ -128,7 +146,8 @@ summary(modelo)$r.squared
 
 Obtenemos una $R^2$ de $0.9683$ lo que nos indica que sí es consistente puesto que el modelo se ajusta bien en la grafica de dispersión.
 
-\item Contrastar las hipótesis
+## Inciso 3.d
+Contrastar las hipótesis
 
 \begin{equation}
     \begin{split}
@@ -153,7 +172,8 @@ t
 
 Como $3.88 = |T|>t = 1.85$ rechazamos $H_o$, es decir que en el modelo $\beta_0$ debe ser diferente de 1 en el contexto del problema nos indica que no podemos obtener errores si no hay remaches.
 
-\item Estimar puntualmente el número esperado de errores de alineación de un avión con 24 remaches faltantes y construir un IC 90\%.\\
+## Inciso 3.e
+Estimar puntualmente el número esperado de errores de alineación de un avión con 24 remaches faltantes y construir un IC 90\%.
 
 Estimamos puntualmente:
 
@@ -169,18 +189,20 @@ Intervalos de confianza:
 
 ```{r, echo = TRUE}
 s2.est <- summary(modelo)$sigma^2
-ta <- qt(0.95, n-2)
+ta <- qt(0.95, nrow(aeronaves)-2)
 IC.24 <- y.24+c(-1, 1)*ta*sqrt(s2.est)
 IC.24
 ```
 
+# Ejercicio 4
+Utilizar el conjunto de datos que se envía adjunto para responder lo siguiente.
 
-# 4. Utilizar el conjunto de datos que se envía adjunto para responder lo siguiente.
 ```{r}
 cancer <- read.table("tarea_cancer.csv", header = TRUE, sep = ",")
 ```
 
-## a) Graficar un diagrama de dispersión del número de cigarros por persona (variable cigarrette) contra la tasa de muertes por cáncer de pulmón (por cada 100, 000 habitantes, variable lung). ¿La gráfica indica la posibilidad de una asociación lineal entre las variables?
+## Inciso 4.a
+Graficar un diagrama de dispersión del número de cigarros por persona (variable cigarrette) contra la tasa de muertes por cáncer de pulmón (por cada 100, 000 habitantes, variable lung). ¿La gráfica indica la posibilidad de una asociación lineal entre las variables?
 
 ```{r}
     plot(cancer$cigarrette, cancer$lung, main="Diagrama de dispersión",
@@ -189,8 +211,8 @@ cancer <- read.table("tarea_cancer.csv", header = TRUE, sep = ",")
 
 La gráfica muestra que hay una asociación positiva entre el número de cigarros por persona y la tasa de muerte por cada mil habitantes causada por cáncer de pulmón.
 
-
-## b) Ajustar un modelo RLS para explicar la distribución de lung como función de cigarrettes. Reportar las estimaciones de los coeficientes e interpretarlos en el contexto de los datos.
+## Inciso 4.b
+Ajustar un modelo RLS para explicar la distribución de lung como función de cigarrettes. Reportar las estimaciones de los coeficientes e interpretarlos en el contexto de los datos.
 
 ```{r}
 rls <- lm(lung ~ cigarrettes, cancer)
@@ -201,7 +223,8 @@ beta1 <- coef(rls)["cigarrettes"]
 El valor del intercepto $\beta_{0} =$ `r beta0` podría interpretarse como la tasa de muertes por cáncer de pulmón (por cada $100000$ habitantes) dado que en el estado observado el promedio o número de cigarros por persona es cero. Esto puede tener sentido debido a que fumar tabaco puede no ser la única causa de cáncer de pulmón. 
 El valor de $\beta_{1}=$ `r beta1` por su parte indica que un incremento de un cigarro más a nivel estatal incrementaría la tasa de muerte por cáncer de pulmón en $0.0052$. 
 
-## c) Construir la tabla ANOVA para la hipótesis de significancia del efecto del número de cigarros por persona en la tasa de muertes por cáncer de pulmón.
+## Inciso 4.c
+Construir la tabla ANOVA para la hipótesis de significancia del efecto del número de cigarros por persona en la tasa de muertes por cáncer de pulmón.
 `bquote(H[0] : b[0] == 1 vs. H[1]: != 1)`
 
 ```{r}
@@ -231,7 +254,8 @@ knitr::kable(anova, caption = "ANOVA")
 
 
 
-## d) Concluir sobre la significancia del modelo si se utiliza un tamaño de prueba de 0.05. Reportar el p-value de la prueba.
+## Inciso 4.d
+Concluir sobre la significancia del modelo si se utiliza un tamaño de prueba de 0.05. Reportar el p-value de la prueba.
 
 Rechazamos la prueba $H_{0}:\beta_{1}=0$ si el valor de $F >F_{(1,n-2)}^{(1-\alpha)}$
 
@@ -239,11 +263,188 @@ Rechazamos la prueba $H_{0}:\beta_{1}=0$ si el valor de $F >F_{(1,n-2)}^{(1-\alp
 estadisticoF <- df(1-0.05, 1, nrow(cancer)-2)
 ```
 
-`r 'F =' SCR/(SCE/nrow(cancer)-2` $>$ `r estadisticoF`,por lo tanto con un tamaño de prueba $\alpha=0.05$ rechazamos la hipótesis nula. En otras palabras, los datos aportan evidencia estadísticamente significativa sobre la relación entre tasa de muerte por cáncer de pulmón y número de cigarros por persona.
+$F = `r SCR/(SCE/nrow(cancer)-2)` > `r estadisticoF`$, por lo tanto con un tamaño de prueba $\alpha=0.05$ rechazamos la hipótesis nula. En otras palabras, los datos aportan evidencia estadísticamente significativa sobre la relación entre tasa de muerte por cáncer de pulmón y número de cigarros por persona.
 
-# 5. ----------------------------------------------------------------------
+# Ejercicio 5
+En un estudio se midió la estatura ($X$, en cm) y el peso ($Y$ , en kg) de 50 mujeres de entre 20 y 24 años, y se ajustó un modelo RLS para explicar el la distribución del peso en como función de la estatura. A continuación de muestra un resumen de la información obtenida.
+\begin{align*}
+\bar{x} &= 164.9 & \bar{y} &= 59.3 & S_{xx} &= 2875.7 & S_{yy} &= 1423.5 & S_{xy} &= 1222.5
+\end{align*}
+Responder lo siguiente:
+
+## Inciso 5.a
+Reportar las estimaciones de los coeficientes del modelo e interpretarlas en el contexto de los datos.
+
+Podemos estimar los coeficientes del modelo con las identidades vistas en clase, esto es:
+\begin{align*}
+ \widehat{\beta_0}= \overline{y_n}- \dfrac{S_{xy}}{S_{xx}}\overline{x_n} = -10.8 \\
+\text{y } \: \widehat{\beta_1}= \dfrac{S_{xy}}{S_{xx}}= 0.425 \\
+\longrightarrow \widehat{\beta_0}= -10.8 \; \; \wedge \; \; \widehat{\beta_1}=0.425
+ \end{align*}
+
+De esta manera podemos concluir que el estimador $\widehat{\beta_0}$ carece de sentido en este contexto, pues no podemos hablar de mujeres que tengan una altura de cero centímetros. El estimador $\widehat{\beta_1}$, por otra parte, nos indica que hay una relación de crecimiento positiva por talla y el peso en las mujeres, más específico, que por cada centímetro extra en la talla (altura), habrá un incremento esperado de 0.425 kg en el peso.
 
 
+## Inciso 5.b
+¿Hay evidencia de que la estatura tiene algún efecto en el peso esperado de una persona?
 
-# 6. ----------------------------------------------------------------------
+Para responder esta pregunta podemos plantear el siguiente contraste de hipótesis:
+$$H_o: \, \widehat{\beta_1}  = 0 \; \text{vs} \; H_1: \, \widehat{\beta_1} \neq 0$$
 
+
+Rechazamos $H_0$ cada vez que  $\displaystyle F > F_{n-2}^{1-\alpha}$ con $n = 50$. 
+
+Tenemos que $\displaystyle F= \dfrac{SCR}{\frac{SCE}{n-2}}$, para poder calcularlo haremos uso de algunas propiedades que ya hemos visto o demostrado con anterioridad, esto es:
+
+\begin{align*}
+SCR = S_{xx} \hat{\beta}_1^2 = (2875.7)\cdot (0.425)^2 = 519.7 \\
+SCE = \dfrac{S_{xx} S_{yy} - S_{xy}^2}{S_{xx}} = 903.79 \\
+\text{y } F = \dfrac{SCR}{\frac{SCE}{n-2}} = \dfrac{519.7}{\frac{903.79}{48}} = 27.6
+\end{align*} 
+
+Y calculando F con ayuda de ''R´´ y con $\alpha = 0.5$ entonces
+
+```{r}
+qf(0.95, 1, 48, lower.tail= TRUE)
+```
+
+De aquí podemos concluir que $F=27.6 > 4.04$ por lo que hay evidencia suficiente para  rechazar la hipótesis $H_0$. En el contexto del problema podemos interpretar este resultado como que hay aceptable evidencia para concluir que la estatura tiene efecto en el peso esperado para las mujeres al menos en el rango de 20 a 24 años.
+
+## Inciso 5.c
+Construir la tabla ANOVA para este modelo
+
+\begin{table}
+\caption{Tabla ANOVA}
+\centering
+\begin{tabular}{|l | c | c | c | r|}
+\toprule
+FV &  GL & SC & CM & F \\
+\midrule
+\midrule
+Regresión & 1 & 519.7  & 519.7 &  27.6\\
+\midrule
+Error & 48 & 903.79 & 18.82143.25  \\
+\midrule
+Total & 49 & 143.25  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Donde: 
+
+$$ SCT =SCR +SCE = 1423.5 $$
+
+
+$$CMR = \frac{SCR}{1}=519.7$$
+$$ CME = \dfrac{CME}{n-2}=18.82 $$
+
+y $F= 27.6$
+
+## Inciso 5.d
+Calcular el $R^2$ e interpretar el resultado
+
+$$R^2 = 1 - \dfrac{SCE}{SCT}= 1 -\dfrac{903.79}{1423.5}= 1 -0.6349= 0.3650$$
+
+Este cociente representa la proporción de la variación muestral de $y$ que es explicada por $x$, esto es, la variación explicada entre la variación total. Como podemos observar el valor es más cercano a cero que a 1, por lo que podemos concluir que el modelo no tiene un buen ajuste, dentro del problema que estamos trabajando.
+
+# Ejercicio 6
+Se ajustó un modelo de regresión lineal simple a un conjunto de datos y se obtuvo la siguiente tabla ANOVA
+\begin{table}
+\caption{Tabla ANOVA}
+\centering
+\begin{tabular}{c|ccccc}
+\toprule
+FV &  GL & SC & CM & F & p-value \\
+\midrule
+Regresión & 1 & X & 20.11 & X & X \\
+\midrule
+Error & X & 92.62 & X & &  \\
+Total & 20 & 112.7 & & &  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Además se calculó $S_{xx} = 770.0$. Responda lo siguiente
+
+## Inciso 6.a
+Completar la información de la tabla anterior (sólo las celdas señaladas con X).
+
+Sabemos que, para el modelo RLS, la tabla ANOVA se define como sigue:
+\begin{table}[H]
+\caption{Tabla ANOVA}
+\centering
+\begin{tabular}{c|ccccc}
+\toprule
+FV &  GL & SC & CM & F & p-value \\
+\midrule
+Regresión & 1 & SCR & SCR & $\dfrac{\text{CMR}}{\text{CME}}$ & $P( F > F_{(1, n - 2)})$ \\
+\midrule
+Error & n - 2 & SCE & $\dfrac{\text{SCE}}{n - 2}$ & &  \\
+Total & n - 1 & SCT & & &  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Comparando las dos tablas anteriores, obtenemos las siguiente igualdades:
+\begin{align*}
+n - 1 &= 20 & SCE &= 92.62 & SCT &= 112.7 & SCR &= 20.11
+\end{align*}
+
+De lo anterior obtenemos lo siguiente:
+Comparando las dos tablas anteriores, obtenemos las siguiente igualdades:
+\begin{align*}
+n &= 21 & n - 2 &= 18 &  \dfrac{SCE}{n - 2} &= \dfrac{92.62}{18} = 5.15 & F &= \dfrac{20.11}{5.15} = 3.90
+\end{align*}
+El p-value lo calculamos usando `R`.
+```{r, echo = TRUE}
+p_value <- pf(3.90, df1 = 1, df2 = 18, lower.tail = FALSE)
+```
+Obteniendo así un resultado de $\mathrm{p-value} = `r p_value`$.
+
+Con la información anterior, procedemos a llenar la tabla de ANOVA
+\begin{table}[H]
+\caption{Tabla ANOVA}
+\centering
+\begin{tabular}{c|ccccc}
+\toprule
+FV &  GL & SC & CM & F & p-value \\
+\midrule
+Regresión & 1 & 92.62 & 20.11 & 3.90 & $`r p_value`$ \\
+\midrule
+Error & 18 & 92.62 & 5.15 & &  \\
+Total & 20 & 112.7 & & &  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+## Inciso 6.b
+Contrastar la significancia del modelo. Considerar un tamaño $\alpha = 0.1$.
+
+Utilizando un $\alpha = 0.1$ se tiene que el cuantil de la distribución de referencia es
+```{r, echo = TRUE}
+alpha <- 0.1
+f.a <- qf(1 - alpha, df1 = 1, df2 = 18)
+```
+Es decir, el cuantil de la distribución de referencia es `r f.a`. El cual es un valor menor al $F = 3.90$. Esto implica que se debe rechazar $\mathrm{H}_0$ con un nivel de significancia del $0.1$. Esto implica que la variable no aleatoria $X$ tiene algún efecto en la distribución de la variable aleatoría $Y$.
+
+## Inciso 6.c
+Estimar $|\hat{\beta}_1|$ y estimar el error estándar del estimador.
+
+En el ejrcicio 1 se demostró que $SCT = \hat{\beta}_1^2 S_{xx}$ y de la tabla ANOVA sabemos que $SCT = 112.7$. Además que nos dan la información de que $S_{xx} = 770.0$. Por lo tanto se tiene que:
+\begin{align*}
+|\hat{\beta}_1| &= \displaystyle \sqrt{\left( \dfrac{SCT}{S_{xx}} \right)} = `r sqrt(112.7/770.0)`
+\end{align*}
+
+## Inciso 6.d
+Calcular el $R^2$ e interpretar el resultado.
+
+Sabemos que el coeficiente de determinación del modelo RLS, se define como
+\begin{align*}
+R^2 = 1 - \dfrac{SCE}{SCT}
+\end{align*}
+
+De la tabla ANOVA construida en el inciso 6.a, sabemos que $SCE = 92.62$ y $SCT = 112.7$, por lo tanto
+\begin{align*}
+R^2 = 1 - \dfrac{SCE}{SCT} = 1 - \dfrac{92.62}{112.7} = 1 - 0.8218279 = 0.1781721
+\end{align*}
+Esto nos indica que el ajuste del modelo es malo, ya que el modelo solamente logra explicar un $17.8 \%$ de la variación total de las observaciones de la variable independiente $Y$.
