@@ -14,6 +14,7 @@ output:
     fig_caption: true
     highlight: tango
     df_print: kable
+    keep_tex: yes
     includes:
       in_header: tex/header.tex
 fontsize: 11pt
