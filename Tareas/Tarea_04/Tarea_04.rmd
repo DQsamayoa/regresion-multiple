@@ -38,7 +38,49 @@ library(latex2exp)
 
 
 
-# 2. ----------------------------------------------------------------------
+# 2. \begin{enumerate}
+
+\item Mostrar que, para el modelo RLS, se cumple
+
+\begin{equation}
+    \begin{split}
+    \notag F = \frac{R^2\left(n-2\right)}{1-R^2},
+    \end{split}
+\end{equation}
+
+donde F es el estadístico del ANOVA y $R^2$ es el coeficiente de determinación del modelo.\\
+
+Sabemos que 
+
+\begin{equation}
+    \begin{split}
+    \notag R^2 =1- \frac{SCE}{SCT}, \quad F = \frac{SCR}{\frac{SCE}{(n-2)}} \quad \text{y} \quad SCT = SCR + SCE
+    \end{split}
+\end{equation}
+
+Entonces
+
+\begin{equation}
+    \begin{split}
+    \notag F &= \frac{SRE}{\frac{SCE}{(n-2)}} =\frac{SCR(n-2)}{SCE} = \frac{(SCT-SCE)(n-2)}{SCE} \left( \frac{SCT}{SCT} \right)\\
+	&= \frac{\left( \frac{SCT}{SCT}-\frac{SCE}{SCT} \right) \left( n-2 \right)}{\frac{SCE}{SCT}} = \frac{\left( \frac{SCT}{SCT}-\frac{SCE}{SCT} \right) \left( n-2 \right)}{1-1+\frac{SCE}{SCT}} = \frac{\left( 1-\frac{SCE}{SCT} \right) \left( n-2 \right)}{1-\left( 1-\frac{SCE}{SCT} \right)}\\
+	&= \frac{R^2\left(n-2\right)}{1-R^2}
+    \end{split}
+\end{equation}
+
+Por lo tanto
+
+\begin{equation}
+    \begin{split}
+    \notag F = \frac{R^2\left(n-2\right)}{1-R^2},
+    \end{split}
+\end{equation}
+
+\item Suponer que para un conjunto de 20 pares de observaciones $(x, y), r=-0.74$. Si se ajusta un modelo RLS a estos datos, ¿que se puede decir sobre la significancia del modelo?\\
+
+Pdemos decir que el modelo tiene una asociación lineal inversa fuerte entre las observaciones $(x, y)$, es decir, si una crece la otra decrece.
+
+\end{enumerate}
 
 
 
