@@ -1,0 +1,87 @@
+---
+title: "Regresión múltiple y otras técnicas multivariadas"
+subtitle: "Tarea 05"
+author:
+  - "Rivera Torres Francisco de Jesús"
+  - "Rodríguez Maya Jorge Daniel"
+  - "Samayoa Donado Víctor Augusto"
+  - "Trujillo Bariios Georgina"
+date: "Marzo 13, 2019"
+output:
+  pdf_document:
+    toc: false
+    number_sections: false
+    fig_caption: true
+    highlight: kate
+    df_print: kable
+    includes:
+      in_header: tex/header.tex
+fontsize: 11pt
+documentclass: article
+classoption: twoside
+fig_align: "center"
+---
+
+```{r setup, include = FALSE, eval = TRUE}
+knitr::opts_chunk$set(echo = FALSE, eval = TRUE, fig.height = 4)
+
+# Se cargan las librerias a utilizar
+library(tidyverse)
+library(readxl)
+library(scales)
+library(grid)
+library(kableExtra)
+library(latex2exp)
+```
+
+# Ejercicio 1
+En un estudio que consistió en explorar la relación entre la longitud de la mandíbula (en milímetros) y la edad gestacional (en semanas) de 158 fetos, se obtuvieron los siguientes resultados:
+\begin{align*}
+\bar{x} &= 20.1, & \bar{y} &= 23.6, & S_{xx} &= 2473.8, & S_{yy} &= 8652.4, & S_{xy} = 4385.4
+\end{align*}
+Responder lo siguiente:
+
+## Inciso 1.a
+Ajustar un modelo RLS para explicar la distribución de la longitud de la mandíbula de los fetos como función de la edad gestacional. Reportar las estimaciones de los parámetros. Interpretar los resultados en el contexto de los datos.
+
+## Inciso 1.b
+Construir la tabla ANOVA y contrastar la significancia del modelo del inciso anterior. Usar un tamaño de prueba $\alpha = 0.05$.
+
+## Inciso 1.c
+Calcular un intervalo de predicción para la media de la longitud de la mandíbula de un feto con 23 semanas de gestación.
+
+## Inciso 1.d
+Calcular el $R^2$ del modelo e interpretar el resultado.
+
+# Ejercicio 2
+En un estudio sobre los $67$ condados del estado de Florida (EUA), se obtuvieron los siguientes resultados sobre
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Variable} & \textbf{Promedio} & \textbf{Desv. est.} \\
+\midrule
+Ingreso & 24.51 & 4.69 \\
+Educación 69.49 & 8.86 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Se ajustó un modelo RLS a los datos, para explicar la distribución del ingreso como función de la
+educación, y se obtuvieron los siguientes resultados:
+\begin{align*}
+\hat{\beta}_0 &= -4.63, & \hat{\beta}_1 &= 0.42
+\end{align*}
+
+## Inciso 2.a
+Construir intervalos simultáneos de confianza $95\%$ para $\beta_0$ y $\beta_1$.
+
+## Inciso 2.b
+Construir la tabla ANOVA y contrastar la significancia del modelo ajustado. Utilizar
+$\alpha = 0.05$.
+
+## Inciso 2.c
+Reportar la estimación de $\sigma$ y calcular un intervalo de confianza $95\%$.
+
+## Inciso 2.d
+Calcular el $R^2$ del modelo e interpretar el resultado.
