@@ -44,14 +44,121 @@ Responder lo siguiente:
 ## Inciso 1.a
 Ajustar un modelo RLS para explicar la distribución de la longitud de la mandíbula de los fetos como función de la edad gestacional. Reportar las estimaciones de los parámetros. Interpretar los resultados en el contexto de los datos.
 
+Sabemos que los estimadores de los coeficientes del modelo RLS, se pueden obtener de la siguiente manera:
+\begin{align*}
+\hat{\beta}_0 &= \bar{y} - \dfrac{S_{xy}}{S_{xx}} \bar{x} & \hat{\beta}_1 &= \dfrac{S_{xy}}{S_{xx}}
+\end{align*}
+por lo tanto, se tiene que:
+\begin{align*}
+\hat{\beta}_0 = 23.6 - \dfrac{4385.4}{2473.8} 20.1 = -12.03204 \qquad \text{y} \qquad \hat{\beta}_1 = \dfrac{4385.4}{2473.8} = 1.772738 \\
+\end{align*}
+teniendo así el modelo RLS, $\hat{y} = -12.03204 + 1.772738 x$.
+
+De acuerdo con el contexto de los datos, el parámetro $\hat{\beta}_0$ no tiene una interpretación dentro del problema.
+
+Por otro lado, el estimador del parámetro $\hat{\beta}_1$ nos indica que por cada semana que transcurre en la gestación del feto, la longitud de la mandibula crece, en promedio, 1.77 miímetros.
+
 ## Inciso 1.b
 Construir la tabla ANOVA y contrastar la significancia del modelo del inciso anterior. Usar un tamaño de prueba $\alpha = 0.05$.
+
+Sabemos que, para el modelo RLS, la tabla ANOVA se define como sigue:
+\begin{table}[H]
+\caption{Tabla ANOVA}
+\centering
+\begin{tabular}{c|ccccc}
+\toprule
+FV &  GL & SC & CM & F & p-value \\
+\midrule
+Regresión & 1 & SCR & SCR & $\dfrac{\text{CMR}}{\text{CME}}$ & $P( F > F_{(1, n - 2)})$ \\
+\midrule
+Error & n - 2 & SCE & $\dfrac{\text{SCE}}{n - 2}$ & &  \\
+Total & n - 1 & SCT & & &  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+donde $n = 158$ y 
+\begin{align*}
+SCR &= S_{xx} \hat{\beta}_1^2, & SCE &= \frac{S_{xx} S_{yy}- S^2_{xy}}{S_{xx}}, & SCT &= SCR + SCE \\
+SCR &= 2473.8 (1.772738)^2, & SCE &= \frac{(2473.8) (8652.4) - (4385.4)^2}{2473.8}, & SCT &= SCR + SCE \\
+SCR &= 7774.164 & SCE &= 878.2335 & SCT &= 8652.397
+\end{align*}
+
+Con estos valores se procede a calcular los campos restantes de la tabla ANOVA:
+\begin{align*}
+CMR &= SCR & CME &= \dfrac{SCE}{n - 2} & F &= \dfrac{CMR}{CME} \\
+CMR &= 7774.164 & CME &=  5.629702 & F &= 1380.919
+\end{align*}
+
+Utilizando un $\alpha = 0.05$ se tiene que el cuantil de la distribución de referencia es
+```{r, echo = TRUE}
+alpha <- 0.05
+f.a <- qf(1 - alpha, df1 = 1, df2 = 156)
+```
+Es decir, el cuantil de la distribución de referencia es `r f.a`. El cual es un valor menor a $F = 1380.919$. Esto implica que se debe rechazar $\mathrm{H}_0$ con un nivel de significancia del $0.05$. Esto implica que la variable explicativa **edad gestacional** no tiene algún efecto en la distribución de la variable objetivo **longitud de la mandíbula**.
+
+Usando la información anterior, la tabla ANOVA queda como sigue:
+
+\begin{table}[H]
+\caption{Tabla ANOVA}
+\centering
+\begin{tabular}{c|ccccc}
+\toprule
+FV &  GL & SC & CM & F & p-value \\
+\midrule
+Regresión & 1 & 7774.164 & 7774.164 & 1380.919 & $`r f.a`$ \\
+\midrule
+Error & 156 & 878.2335 & 5.629702 & &  \\
+Total & 157 & 8652.397 & & &  \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 ## Inciso 1.c
 Calcular un intervalo de predicción para la media de la longitud de la mandíbula de un feto con 23 semanas de gestación.
 
+Sabemos que la media de la longitud de la mandíbula de un feto con $x_0$ semanas de gestación está dada por
+\begin{align*}
+\hat{\mu}_0 = \hat{\beta}_0 + \hat{\beta}_1 x_0 \qquad \text{ entonces } \qquad \hat{\mu}_0 = -12.03204 + 1.772738 (23) = 28.74093
+\end{align*}
+
+Además, sabemos que el intervalo de confianza está dado por:
+\begin{align*}
+\hat{\mu}_0 \pm t_{n-1}^{1 - \alpha/2} \hat{\sigma}_{\mathrm{MCO}} \sqrt{\dfrac{1}{n} + \dfrac{(x_0 - \bar{x})^2}{S_{xx}}}
+\end{align*}
+donde podemos estimar la varianza mediante la igualdad $\hat{\sigma}_{\mathrm{MCO}} = \displaystyle \dfrac{SCE}{n - 2} = CME$.
+
+Calculando el estadístico $t_{n-2}^{1 - \alpha/2}$ se obtiene
+```{r, echo = TRUE}
+alpha <- 0.05
+n <- 158
+ta <- qt(1 - alpha/2, n - 2)
+```
+$t_{n-2}^{1 - \alpha/2} = `r ta`$
+
+Entonces tenemos que el intervalo de confianza está dado por:
+\begin{align*}
+\hat{\mu}_0 &\pm t_{n-1}^{1 - \alpha/2} \hat{\sigma}_{\mathrm{MCO}} \sqrt{\dfrac{1}{n} + \dfrac{(x_0 - \bar{x})^2}{S_{xx}}} \\
+28.74093 &\pm (1.975288) \sqrt{5.629702} sqrt{\dfrac{1}{158} + \dfrac{(23 - 20.1)^2}{2473.8}} \\
+28.74093 &\pm (1.975288) (2.372699) sqrt{0.006329114 + 0.003399628} \\
+28.74093 &\pm (1.975288) (2.372699) (0.09863439) \\
+28.74093 &\pm 0.4622761
+\end{align*}
+Por lo tanto, el intervalo de predicción para la media de la longitud de la mandíbula de un feto con 23 semanas de gestación está dado por:
+\begin{align*}
+[28.27865, 29.20321]
+\end{align*}
+esto es, la media de la longitud de la mandibula de un feto con 23 semanas de gestación está entre 28.27865 y 29.20321 milímetros con un $95\%$ de confianza.
+
 ## Inciso 1.d
 Calcular el $R^2$ del modelo e interpretar el resultado.
+
+Recordemos que
+\begin{align*}
+R^2 &= 1 - \dfrac{SCE}{SCT} = 1 - \dfrac{878.2335}{8652.397} = 0.8984982
+\end{align*}
+
+Esto nos indica que el ajuste del modelo es adecuado, ya que el modelo logra explicar un $89.84 \%$ de la variación total de la longitud de la mandíbula de los fetos.
 
 # Ejercicio 2
 En un estudio sobre los $67$ condados del estado de Florida (EUA), se obtuvieron los siguientes resultados sobre
