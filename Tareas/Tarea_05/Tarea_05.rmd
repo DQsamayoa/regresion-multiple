@@ -67,9 +67,9 @@ Sabemos que, para el modelo RLS, la tabla ANOVA se define como sigue:
 \centering
 \begin{tabular}{c|ccccc}
 \toprule
-FV &  GL & SC & CM & F & p-value \\
+FV &  GL & SC & CM & F & $F_{(1, n - 2)}^{(1- \alpha)}$  \\
 \midrule
-Regresión & 1 & SCR & SCR & $\dfrac{\text{CMR}}{\text{CME}}$ & $P( F > F_{(1, n - 2)})$ \\
+Regresión & 1 & SCR & SCR & $\dfrac{\text{CMR}}{\text{CME}}$ & $F_{(1, n - 2)}^{(1- \alpha)}$  \\
 \midrule
 Error & n - 2 & SCE & $\dfrac{\text{SCE}}{n - 2}$ & &  \\
 Total & n - 1 & SCT & & &  \\
@@ -95,7 +95,7 @@ Utilizando un $\alpha = 0.05$ se tiene que el cuantil de la distribución de ref
 alpha <- 0.05
 f.a <- qf(1 - alpha, df1 = 1, df2 = 156)
 ```
-Es decir, el cuantil de la distribución de referencia es `r f.a`. El cual es un valor menor a $F = 1380.919$. Esto implica que se debe rechazar $\mathrm{H}_0$ con un nivel de significancia del $0.05$. Esto implica que la variable explicativa **edad gestacional** no tiene algún efecto en la distribución de la variable objetivo **longitud de la mandíbula**.
+Es decir, el cuantil de la distribución de referencia es `r f.a`. El cual es un valor menor a $F = 1380.919$. Esto implica que se debe rechazar $\mathrm{H}_0$ con un nivel de significancia del $0.05$. Esto implica que la variable explicativa **edad gestacional** tiene algún efecto en la distribución de la variable objetivo **longitud de la mandíbula**.
 
 Usando la información anterior, la tabla ANOVA queda como sigue:
 
@@ -104,7 +104,7 @@ Usando la información anterior, la tabla ANOVA queda como sigue:
 \centering
 \begin{tabular}{c|ccccc}
 \toprule
-FV &  GL & SC & CM & F & p-value \\
+FV &  GL & SC & CM & F & $F_{(1, n - 2)}^{(1- \alpha)}$ \\
 \midrule
 Regresión & 1 & 7774.164 & 7774.164 & 1380.919 & $`r f.a`$ \\
 \midrule
@@ -124,11 +124,11 @@ Sabemos que la media de la longitud de la mandíbula de un feto con $x_0$ semana
 
 Además, sabemos que el intervalo de confianza está dado por:
 \begin{align*}
-\hat{\mu}_0 \pm t_{n-1}^{1 - \alpha/2} \hat{\sigma}_{\mathrm{MCO}} \sqrt{\dfrac{1}{n} + \dfrac{(x_0 - \bar{x})^2}{S_{xx}}}
+\hat{\mu}_0 \pm t_{n - 2}^{1 - \alpha/2} \hat{\sigma}_{\mathrm{MCO}} \sqrt{\dfrac{1}{n} + \dfrac{(x_0 - \bar{x})^2}{S_{xx}}}
 \end{align*}
 donde podemos estimar la varianza mediante la igualdad $\hat{\sigma}_{\mathrm{MCO}} = \displaystyle \dfrac{SCE}{n - 2} = CME$.
 
-Calculando el estadístico $t_{n-2}^{1 - \alpha/2}$ se obtiene
+Calculando el estadístico $t_{n - 2}^{1 - \alpha/2}$ se obtiene
 ```{r, echo = TRUE}
 alpha <- 0.05
 n <- 158
@@ -138,9 +138,9 @@ $t_{n-2}^{1 - \alpha/2} = `r ta`$
 
 Entonces tenemos que el intervalo de confianza está dado por:
 \begin{align*}
-\hat{\mu}_0 &\pm t_{n-1}^{1 - \alpha/2} \hat{\sigma}_{\mathrm{MCO}} \sqrt{\dfrac{1}{n} + \dfrac{(x_0 - \bar{x})^2}{S_{xx}}} \\
-28.74093 &\pm (1.975288) \sqrt{5.629702} sqrt{\dfrac{1}{158} + \dfrac{(23 - 20.1)^2}{2473.8}} \\
-28.74093 &\pm (1.975288) (2.372699) sqrt{0.006329114 + 0.003399628} \\
+\hat{\mu}_0 &\pm t_{n - 2}^{1 - \alpha/2} \hat{\sigma}_{\mathrm{MCO}} \sqrt{\dfrac{1}{n} + \dfrac{(x_0 - \bar{x})^2}{S_{xx}}} \\
+28.74093 &\pm (1.975288) \sqrt{5.629702} \sqrt{\dfrac{1}{158} + \dfrac{(23 - 20.1)^2}{2473.8}} \\
+28.74093 &\pm (1.975288) (2.372699) \sqrt{0.006329114 + 0.003399628} \\
 28.74093 &\pm (1.975288) (2.372699) (0.09863439) \\
 28.74093 &\pm 0.4622761
 \end{align*}
@@ -169,7 +169,7 @@ En un estudio sobre los $67$ condados del estado de Florida (EUA), se obtuvieron
 \textbf{Variable} & \textbf{Promedio} & \textbf{Desv. est.} \\
 \midrule
 Ingreso & 24.51 & 4.69 \\
-Educación 69.49 & 8.86 \\
+Educación & 69.49 & 8.86 \\
 \bottomrule
 \end{tabular}
 \end{table}
