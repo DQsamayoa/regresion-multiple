@@ -183,12 +183,130 @@ educación, y se obtuvieron los siguientes resultados:
 ## Inciso 2.a
 Construir intervalos simultáneos de confianza $95\%$ para $\beta_0$ y $\beta_1$.
 
+Sabemos que un intervalo de confianza simultáneo está dado por:
+
+\begin{align*}
+\beta_{0} \in \left( \hat{\beta}_0 \pm t^{(1- \alpha/4)}_{(n-2)}\hat{\sigma}_{MCO} \sqrt{\hat{V}(\hat{\beta}_0)} \right)\\
+\beta_{1} \in \left(  \hat{\beta}_1 \pm t^{(1- \alpha/4)}_{(n-2)}\hat{\sigma}_{MCO} \sqrt{\hat{V}(\hat{\beta}_1)} \right)
+\end{align*}
+
+Y tomando en cuenta que 
+
+\begin{align*}
+SCR = S_{xx} \hat{\beta}_1^2, \;  SCE = \frac{S_{xx} S_{yy}- S^2_{xy}}{S_{xx}} \: \text{y que } SCT = SCR + SCE
+\end{align*}
+
+Tenemos que $n=64$, así $S_{xx}= 67 \cdot (8.86)^2 = 5259.473$, luego 
+
+$S_{xy}=\hat{\beta}_{1}\cdot S_{xx}= (0.42)(5259.473)=2208.9787$, 
+
+$SCT= \sum (y_i - \overline{y}_n)^2 = 67 \cdot (4.69)^2 =1473.73$, 
+
+$SCR = \sum (\hat{y}_i - \overline{y}_n)^2 = \hat{\beta}_{1}^{2}S_{xx} = (0.42)^2 \cdot 5259.473= 927.77$, así $SCR=SCT-SCR= 545.967$.
+
+Además, $\hat{\sigma}^{2}_{MCO}=545.96/65 = 8.3995$,
+
+$\hat{V}(\hat{\beta}_0)= \left( \dfrac{1}{n} + \dfrac{\overline{x}^2}{S_{xx}} \right)\cdot \hat{\sigma}^{2}_{MCO} = (0.933)\cdot (8.3995)= 7.8367$ y
+
+$\hat{V}(\hat{\beta}_1)=\hat{\sigma}^{2}_{MCO}/ S_{xx}= 0.001597$
+
+
+Calculando el estadístico $t_{67-2}^{1-(0.05)/4}$ 
+```{r, echo=TRUE}
+t <- qt(1-0.05/4, 65)
+t
+```
+
+$t_{67-2}^{1-(0.05)/4}= 2.2945$
+
+Por lo que los intervalos simultáneos son:
+
+```{r} 
+b.hat_0 <- -4.63
+b.hat_1 <- 0.42
+sig_MCO<- sqrt(8.3995)
+vrb0 <- 7.8367
+vrb1 <- 0.001597
+IC_b0 <- b.hat_0 + c(-1,1)*t*sig_MCO*sqrt(vrb0)
+IC_b1 <- b.hat_1 + c(-1,1)*t*sig_MCO*sqrt(vrb1)
+IC_b0
+IC_b1
+
+```  
+
+IC para $\beta_0$: $\left( -23.2458, 13.9858 \right)$
+y IC para $\beta_1$: $\left(0.1542, 0.6857\right)$
+
+
 ## Inciso 2.b
 Construir la tabla ANOVA y contrastar la significancia del modelo ajustado. Utilizar
 $\alpha = 0.05$.
 
+\begin{table}[H]
+\caption{Tabla ANOVA}
+\centering
+\begin{tabular}{c|cccc}
+\toprule
+FV &  GL & SC & CM & F  \\
+\midrule
+Regresión & 1 & 927.77 & 927.77  & 110.454 \\
+\midrule
+Error & 65 & 545.96 & 8.3995 &   \\
+Total & 66 & 1473.73  & &  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Para $H_0:\; \beta_0 = 0$ vs $H_1:\; \beta_1 \neq 0$
+
+$$T= \dfrac{\hat{\beta}_1 - b_1}{\hat{\sigma}_{MCO}/\sqrt{S_{xx}}} = 10.5097$$
+
+y $t^{0.975}_{65} = 1.9971$
+
+Como $T= 10.5097 > t=1.9971$ se concluye rechazar $H_0$, esto quiere decir que existe evidencia en la releción  entre la educación y el ingreso.
+
+Por otra parte de la tabla ANOVA
+
+\begin{align*}
+F= 110.45> \left( t^{0.975}_{65} \right)^2 = 3.9885 \\
+T^2 = (10.5097)^2 =110.45 =F
+\end{align*}
+
+
 ## Inciso 2.c
 Reportar la estimación de $\sigma$ y calcular un intervalo de confianza $95\%$.
 
+Tenemos que 
+
+\[ \hat{\sigma}^{2}_{MCO} = \dfrac{\sum (y_i - \hat{y}_n)^2}{n-2}\]
+
+y además sabemos que
+
+\begin{align*}
+\sum (y_i - \hat{y}_n)^2 = \sum (y_i - \overline{y}_n)^2 - \sum (\hat{y}_i - \overline{y}_n)^2 = \\
+=1473.7387 - 5259.4732 = 545.9676\\
+\Rightarrow \hat{\sigma}^{2}_{MCO} = 545.9676 /65 = 8.3995
+\end{align*}
+
+Para los intervalos de confianza utilizamos:
+
+\begin{align*}
+\left( \dfrac{(n-2)\cdot \hat{\sigma}^{2}_{MCO}}{\chi^{2}_{n-2}(1-\alpha/2)},\dfrac{(n-2)\cdot \hat{\sigma}^{2}_{MCO}}{\chi^{2}_{n-2}(\alpha/2)} \right) \\
+\end{align*}
+
+\[\Rightarrow \chi^{2}_{65}(0.975)=89.177, \]
+
+\[\text{y }\, \chi^{2}_{65}(0.025) = 44.6029 \]
+
+Así el intervalo de confianza para $\sigma^2$ es
+$$(6.1222, 12.2406)$$
+
+
 ## Inciso 2.d
 Calcular el $R^2$ del modelo e interpretar el resultado.
+
+Sabemos que $R^2 = 1 \dfrac{SCE}{SCT}$ entonces
+
+$$R^2 = 1 - \dfrac{545.9676}{1473.7387} = 0.6295$$
+
+Por lo que podemos concluir que el modelo no describe adecuadamente el comportamiento de los datos.
