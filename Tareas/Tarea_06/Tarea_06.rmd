@@ -1,0 +1,110 @@
+---
+title: "Regresión múltiple y otras técnicas multivariadas"
+subtitle: "Tarea 06"
+author:
+  - "Rivera Torres Francisco de Jesús"
+  - "Rodríguez Maya Jorge Daniel"
+  - "Samayoa Donado Víctor Augusto"
+  - "Trujillo Barrios Georgina"
+date: "Marzo 27, 2019"
+output:
+  pdf_document:
+    toc: false
+    number_sections: false
+    fig_caption: true
+    highlight: kate
+    df_print: kable
+    includes:
+      in_header: tex/header.tex
+fontsize: 11pt
+documentclass: article
+classoption: twoside
+fig_align: "center"
+---
+
+```{r setup, include = FALSE, eval = TRUE}
+knitr::opts_chunk$set(echo = FALSE, eval = TRUE, fig.height = 4)
+
+# Se cargan las librerias a utilizar
+
+library(readxl)
+library(scales)
+library(grid)
+library(kableExtra)
+library(latex2exp)
+```
+
+# Ejercicio 1
+Considerar las siguientes matrices
+
+# Ejercicio 2
+Considerar la matriz sombrero
+
+# Ejercicio 3
+En un estudio clínico se registró la edad (años), el peso (kg) y la presión sistólica (mmHg) de nueve voluntarios con estilos de vida similares. Los datos se muestran en la siguiente tabla.
+
+<!-- \begin{table}  
+\centering
+\begin{tabular}{| c | c | c |}
+\toprule
+edad &  peso & presión \\
+\midrule
+25   & 73.5 & 112     \\
+\midrule
+25   & 83.5 & 144     \\
+\midrule
+42   & 75.4 & 138     \\
+\midrule
+55   & 68.1 & 145     \\
+\midrule
+30   & 87.2 & 152     \\
+\midrule
+40   & 70.4 & 110     \\
+\midrule
+66   & 83.5 & 118     \\
+\midrule
+60   & 91.7 & 160     \\
+\midrule
+38   & 79.0 & 108    
+\bottomrule
+\end{tabular}
+\end{table}-->
+
+
+## a) Graficar la presión sistólica contra la edad y contra el peso. ¿Se aprecia una relación lineal entre estos pares de variables?
+
+```{r}
+edad <- c(25,25,42,55,30,40,66,60,38)
+peso <- c(73.5,83.5,75.4,68.1,87.2,70.4,83.5,91.7,79.0)
+presion <- c(112,144,138,145,152,110,118,160,108)
+```
+
+```{r}
+plot(edad, presion)
+```
+```{r}
+plot(peso, presion)
+```
+
+No parece haber una relación lineal entre presión y edad, y presión y peso.
+
+## b) Ajustar un modelo RLM para explicar la distribución de la presión sistólica como función de la edad y el peso. Interpretar las estimaciones en el contexto de los datos.
+
+```{r}
+estudio <- data.frame(edad,peso,presion)
+modelo <- lm(presion ~ edad + peso, data=estudio)
+modelo$coefficients
+```
+
+Como vemos el valor del intercepto es `r modelo$coefficients[1]`, el cual no puede interpretarse debido a que carece de sentido pensar en personas con peso cero. No obstante que tiene sentido hablar de edad cero. La estimación para la variable independiente $edad$ es  `r modelo$coefficients[2]`, la cual indica que dado un incremento de un año de edad (y manteniedo el peso constante), se espera que en promedio la presión aumente en `r modelo$coefficients[2]` $mmHg$. Análogamente para la estimación $peso$, dado un incremento de $1kg$ en el peso de una persona (pensando su edad como constante), esperaríamos que en  promedio la presión sistólica aumente en `r modelo$coefficients[3]`.
+
+
+## c) Estimar el valor esperado de la presión de un individuo de 35 años y 80 kg.
+
+```{r}
+valorEsperado <- modelo$coefficients[1] + modelo$coefficients[2]*35 + modelo$coefficients[3]*80
+```
+
+Esto implica que la presión sistólica esperada para un individuo de 35 años y 80 kg de peso es de `r valorEsperado` $mmHg$.
+
+## 4. El siguiente conjunto de datos sobre trasplantes de corazón relaciona el tiempo de supervivencia (en días) de pacientes que recibieron un trasplante con su edad (en años) al momento del trasplante y un llamado puntaje de incompatibilidad o discrepancia que se usa como indicador de qué tan bien recibido será el corazón trasplantado por el receptor.
