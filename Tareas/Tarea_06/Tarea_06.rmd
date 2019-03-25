@@ -26,7 +26,7 @@ fig_align: "center"
 knitr::opts_chunk$set(echo = FALSE, eval = TRUE, fig.height = 4)
 
 # Se cargan las librerias a utilizar
-
+library(tidyverse)
 library(readxl)
 library(scales)
 library(grid)
@@ -36,6 +36,54 @@ library(latex2exp)
 
 # Ejercicio 1
 Considerar las siguientes matrices
+
+\begin{equation*}
+\bm{y} = \begin{pmatrix}
+y_1 \\
+y_2 \\
+\vdots \\
+y_n
+\end{pmatrix}
+\qquad \text{y} \qquad
+\bm{X} = \begin{pmatrix}
+1 & x_1 \\
+1 & x_2 \\
+\vdots & \vdots \\
+1 & x_n
+\end{pmatrix}
+\end{equation*}
+
+Calcular lo siguiente:
+
+## Inciso 2.a)
+
+\begin{equation*}
+\bm{X}^T \bm{X}
+\end{equation*}
+
+## Inciso 2.b)
+
+\begin{equation*}
+\bm{X}^T \bm{y}
+\end{equation*}
+
+## Inciso 2.c)
+
+\begin{equation*}
+\left| \bm{X}^T \bm{X} \right|
+\end{equation*}
+
+## Inciso 2.d)
+
+\begin{equation*}
+\left(\bm{X}^T \bm{X}\right)^{-1}, \text{ ¿qué se debe cumplir para que tal inversa exista?}
+\end{equation*}
+
+## Inciso 2.e)
+
+\begin{equation*}
+\left(\bm{X}^T \bm{X} \right) \bm{X}^T \bm{y}
+\end{equation*}
 
 # Ejercicio 2
 Considerar la matriz sombrero
@@ -107,4 +155,38 @@ valorEsperado <- modelo$coefficients[1] + modelo$coefficients[2]*35 + modelo$coe
 
 Esto implica que la presión sistólica esperada para un individuo de 35 años y 80 kg de peso es de `r valorEsperado` $mmHg$.
 
-## 4. El siguiente conjunto de datos sobre trasplantes de corazón relaciona el tiempo de supervivencia (en días) de pacientes que recibieron un trasplante con su edad (en años) al momento del trasplante y un llamado puntaje de incompatibilidad o discrepancia que se usa como indicador de qué tan bien recibido será el corazón trasplantado por el receptor.
+## Ejercicio 4
+El siguiente conjunto de datos sobre trasplantes de corazón relaciona el tiempo de supervivencia (en días) de pacientes que recibieron un trasplante con su edad (en años) al momento del trasplante y un llamado puntaje de incompatibilidad o discrepancia que se usa como indicador de qué tan bien recibido será el corazón trasplantado por el receptor.
+
+```{r}
+ej4 <- read_csv("datos/ej4.csv", col_types = cols(t_sup = col_integer(),
+                                                  t_dis = col_double(),
+                                                  anios = col_double()))
+
+ej4 %>% 
+  knitr::kable(format = "latex", booktabs = TRUE, longtable = TRUE, linesep = "",
+               escape = TRUE, digits = 4, 
+               caption = "Datos ejercicio 4",
+               col.names = c("Tiempo de supervivencia", "Puntaje de discrepancia", "Edad en años")) %>% 
+  row_spec(0, align = "c") %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "repeat_header"))
+```
+
+Ajustar un modelo RLM para explicar la distribución del logaritmo del tiempo de supervivencia
+como función de la edad y el puntaje de discrepancia.
+
+## Inciso 4.a)
+Reportar las estimaciones de los coeficientes del modelo e interpretarlas en el contexto de los
+datos.
+
+## Inciso 4.b)
+Si se sabe que el índice de discrepancia involucra en su cómputo, entre otros factores, a la
+edad del paciente, ¿tiene sentido la interpretación que acaba de dar sobre el coeficiente $\beta_j$ de
+la edad? ¿y del coeficiente $\beta_j$ del propio índice? Argumente y justifique su respuesta.
+
+## Inciso 4.c)
+Reportar la estimación de $\sigma^2$.
+
+## Inciso 4.d)
+Estimar la media del tiempo de supervivencia de un paciente que recibió un trasplante de
+corazón a los $46$ años y tenía un índice de discrepancia de $1.43$.
