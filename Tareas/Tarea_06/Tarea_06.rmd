@@ -86,7 +86,95 @@ Calcular lo siguiente:
 \end{equation*}
 
 # Ejercicio 2
-Considerar la matriz sombrero
+Considerar la matriz sombrero $\bm{H} = \bm{X} \left(\bm{X}^T \bm{X} \right)^{-1} \bm{X}^T$ del análisis del modelo RLM. Mostrar que las siguientes matrices son simétricas e idempotentes.
+
+Recordemos que una matriz $A$ es simétrica si $A^T = A$. Y una matriz $B$ es idempotente si $BB = B$.
+
+Recordemos que $\bm{I}_n$ es la matriz identidad de dimensión $n \times n$ y $\bm{J}_n$ es la matriz de puros "unos" de dimensión $n \times n$.
+
+## Inciso 2.a)
+$\bm{I}_n - \bm{H}$
+
+Primero demostramos que es simétrica.
+\begin{proof}
+\begin{align*}
+\left(I_n - H \right)^T
+&= \left[I_n - X \left(X^T X \right)^{-1} X^T \right]^T
+= \left(I_n \right)^T - \left[X \left(X^T X \right)^{-1} X^T \right]^T \\
+&= I_n - \left(X^T\right)^T \left[\left(X^T X \right)^{-1}\right]^T X^T
+= I_n - X \left[\left(X^T X \right)^T\right]^{-1} X^T \\
+&= I_n - X \left(X^T \left(X^T\right)^T\right)^{-1} X^T 
+= I_n - X \left(X^T X \right)^{-1} X^T \\
+&= I_n - H
+\end{align*}
+por lo tanto $\bm{I}_n - \bm{H}$ es simétrica.
+\end{proof}
+
+Ahora se procede a demostrar que es idempotente
+\begin{proof}
+\begin{align*}
+\left(I_n - H \right)\left(I_n - H \right)
+&= I_n I_n - I_n H - H I_n + H H \\
+&= I_n - 2H + H H \\
+&= I_n - 2 X \left(X^T X \right)^{-1} X^T + \left[X \left(X^T X \right)^{-1} X^T\right]\left[X \left(X^T X \right)^{-1} X^T \right] \\
+&= I_n -2 X \left(X^T X \right)^{-1} X^T + X \left(X^T X \right)^{-1} \left(X^T X \right) \left(X^T X \right)^{-1} X^T  \\
+&= I_n -2 X \left(X^T X \right)^{-1} X^T + X \left(X^T X \right)^{-1} X^T  \\
+&= I_n - X \left(X^T X \right)^{-1} X^T  \\
+&= I_n - H
+\end{align*}
+por lo tanto $\bm{I}_n - \bm{H}$ es idempotente.
+\end{proof}
+
+## Inciso 2.b)
+$\bm{I}_n - \dfrac{1}{n}\bm{J}_n$
+
+Primero demostramos que es simétrica.
+\begin{proof}
+\begin{align*}
+\left(I_n - \dfrac{1}{n} J_n \right)^T
+&= I_n^T - \left(\dfrac{1}{n} J_n\right)^T
+= I_n - \dfrac{1}{n} J_n
+\end{align*}
+ya que $J_n = (1_{ik})$, donde $1_{ik} = 1$, para cualesquiera $i, k = 1, \ldots, n$. Y $\left( J_n\right)^T = (1_{ik})^T = (1_{ki})$, pero $1_{ik} = 1_{ki} = 1$. Por lo tanto, $\bm{I}_n - \dfrac{1}{n}\bm{J}_n$ es simétrica.
+\end{proof}
+
+Ahora se procede a demostrar que es idempotente
+\begin{proof}
+\begin{align*}
+\left(I_n - \dfrac{1}{n} J_n \right)\left(I_n - \dfrac{1}{n} J_n \right)
+&= I_n I_n I_n - \dfrac{1}{n} I_n J_n  - \dfrac{1}{n} J_n I_n + \dfrac{1}{n^2} J_n J_n \\
+&= I_n - \dfrac{2}{n} J_n + \dfrac{1}{n^2} J_n J_n
+= I_n - \dfrac{2}{n} J_n + \dfrac{1}{n} J_n \\
+&= I_n - \dfrac{1}{n} J_n
+\end{align*}
+ya que $J_n J_n = \left(\sum_{l = 1}^n 1_{il} 1_{lk} \right)_{ik} = (n_{ik})$. Por lo tanto, $\bm{I}_n - \dfrac{1}{n}\bm{J}_n$ es idempotente.
+\end{proof}
+
+## Inciso 2.c)
+$\bm{H} - \dfrac{1}{n}\bm{J}_n$
+
+Primero demostramos que es simétrica.
+\begin{proof}
+\begin{align*}
+\left(H - \dfrac{1}{n} J_n\right)^T
+&= \left[\left(I_n - \dfrac{1}{n} J_n\right) -\left(I_n - H \right) \right]^T
+= \left(I_n - \dfrac{1}{n} J_n\right)^T -\left(I_n - H \right)^T \\
+&= \left(I_n - \dfrac{1}{n} J_n\right)^T -\left(I_n - H \right), \text{ ya que ambas son simétricas por incisos 2.a y 2.b} \\
+&= H - \dfrac{1}{n} J_n
+\end{align*}
+por lo tanto $\bm{H} - \dfrac{1}{n}\bm{J}_n$ es simétrica.
+\end{proof}
+
+Ahora se procede a demostrar que es idempotente
+\begin{proof}
+\begin{align*}
+\left(H - \dfrac{1}{n} J_n\right)\left(H - \dfrac{1}{n} J_n\right)
+&= HH - \dfrac{1}{n} H J_n - \dfrac{1}{n} J_n H + \dfrac{1}{n^2} J_n J_n \\
+&= H - \dfrac{1}{n} H J_n - \dfrac{1}{n} J_n H + \dfrac{1}{n} J_n, \text{ ya que } H \text{ y } \dfrac{1}{n}J_n \text{ son idempotentes} \\
+\end{align*}
+Por lo tanto $\bm{H} - \dfrac{1}{n}\bm{J}_n$ es idempotente.
+\end{proof}
+
 
 # Ejercicio 3
 En un estudio clínico se registró la edad (años), el peso (kg) y la presión sistólica (mmHg) de nueve voluntarios con estilos de vida similares. Los datos se muestran en la siguiente tabla.
@@ -161,7 +249,10 @@ El siguiente conjunto de datos sobre trasplantes de corazón relaciona el tiempo
 ```{r}
 ej4 <- read_csv("datos/ej4.csv", col_types = cols(t_sup = col_integer(),
                                                   t_dis = col_double(),
-                                                  anios = col_double()))
+                                                  anios = col_double())) %>% 
+       rename(supervivencia = t_sup,
+              discrepancia = t_dis,
+              edad = anios)
 
 ej4 %>% 
   knitr::kable(format = "latex", booktabs = TRUE, longtable = TRUE, linesep = "",
@@ -179,14 +270,74 @@ como función de la edad y el puntaje de discrepancia.
 Reportar las estimaciones de los coeficientes del modelo e interpretarlas en el contexto de los
 datos.
 
+Antes de ajustar el modelo, se procede a gráficar la densidad de las variables explicativas para entender los intervalos de valores para cada variable explicativa.
+
+
+```{r}
+ej4 %>%
+  ggplot(aes(x = discrepancia, y = edad)) +
+  geom_density_2d()
+```
+
+Se observa que la variable edad tiene valores entre los 40 y 65 años. Mientras que la variable discrepancia tiene valoes entre 0 y 3.
+
+```{r}
+modelo4 <- ej4 %>% 
+           lm(formula = log(supervivencia) ~ discrepancia + edad)
+
+coeficientes <- modelo4$coefficients
+
+modelo4
+```
+
+Lo anterior implica que el modelo RLM:
+\begin{align*}
+\log (\mathrm{supervivencia}) &= `r coeficientes[1]` `r coeficientes[2]`\mathrm{discrepancia} `r coeficientes[3]`\mathrm{edad}
+\end{align*}
+
+Por el análisis anterior, los datos observados no existe ningún paciente que tenga 0 años (o una edad cercana a esto). Sin embargo, considerando el contexto del problema, es posible pensar en un bebe (0 años) que necesita un transplante de corazon. En este caso el coeficiente $\hat{\beta}_0 = `r coeficientes[1]`$ se interpreta como el logaritmo del tiempo de supervivencia (en días) para un paciente de 0 años con una discrepancia de 0. En otras palabras $\exp(\hat{\beta}_0) = `r exp(coeficientes[1])`$ es el tiempo, promedio, de supervivencia (en días) para un paciente de 0 años con una discrepancia de 0.
+
+EL coeficiente $\hat{\beta}_1 = `r coeficientes[2]`$ se interpreta como el decremento del logaritmo del tiempo, promedio, de supervivencia por cada unidad de discrepancia que aumenta en un paciente.
+
+EL coeficiente $\hat{\beta}_2 = `r coeficientes[3]`$ se interpreta como el decremento del logaritmo del tiempo, promedio, de supervivencia por cada año (en edad) que aumenta en un paciente.
+
 ## Inciso 4.b)
 Si se sabe que el índice de discrepancia involucra en su cómputo, entre otros factores, a la
 edad del paciente, ¿tiene sentido la interpretación que acaba de dar sobre el coeficiente $\beta_j$ de
 la edad? ¿y del coeficiente $\beta_j$ del propio índice? Argumente y justifique su respuesta.
 
+En el caso del índice de discrepancia, la interpretación anterior sobre el coeficiente $\hat{\beta}_1$ no es necesariamente válida. Esto debido a que al afirmar que "... un incremento de una unidad del índice de discrepancia ...", se asume que el valor de la variable edad no se modifica.
+
+Sin embargo, debido a que el cálculo de la variable discrepancia involucra la edad, es posible que el incremento de una unidad solamente se de al modificar la variable edad.
+
+Lo anterior no es válido si la relación es tal que se pueda mantener constante la variable edad y aún así lograr cambios en el índice de discrepancia. En tal caso la interpretación de $\hat{\beta}_1$ sigue siendo válida.
+
+En el caso de de la variable edad, la interpretación anterior sobre el coeficiente $\hat{\beta}_2$ ya no es válida. Esto debido a que sin lugar a dudas una variación en la variable edad implicara una variación en el índice de discrepancia y por ende no podemos hablar de "... un incremente en la variable edad, mientras la variable discrepancia se mantiene constante".
+
 ## Inciso 4.c)
 Reportar la estimación de $\sigma^2$.
+
+```{r}
+sigma <- summary(modelo4)$sigma
+```
+
+
+La estimación de la varianza está dada por $\sigma^2 = `r sigma^2`$.
 
 ## Inciso 4.d)
 Estimar la media del tiempo de supervivencia de un paciente que recibió un trasplante de
 corazón a los $46$ años y tenía un índice de discrepancia de $1.43$.
+
+La media del logaritmo del tiempo de supervivencia está dada por
+\begin{align*}
+\log (\mathrm{supervivencia}) &= `r coeficientes[1]` `r coeficientes[2]`\mathrm{discrepancia} + `r coeficientes[3]`\mathrm{edad}
+\end{align*}
+por ende, la media del tiempo de supervivencia está dada por
+\begin{align*}
+\mathrm{supervivencia} &= \exp(`r coeficientes[1]` `r coeficientes[2]`\mathrm{discrepancia} `r coeficientes[3]`\mathrm{edad}) \\
+\bar{y} &= \exp(`r coeficientes[1]` `r coeficientes[2]`(1.43) `r coeficientes[3]`(46)) \\
+\bar{y} &= \exp(`r coeficientes[1]` `r coeficientes[2]*(1.43)` `r coeficientes[3]*(46)`) \\
+\bar{y} &= \exp(`r sum(as.vector(coeficientes*c(1, 1.43, 46)))`) \\
+\bar{y} &= `r exp(sum(as.vector(coeficientes*c(1, 1.43, 46))))`
+\end{align*}
+
