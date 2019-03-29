@@ -55,34 +55,159 @@ y_n
 
 Calcular lo siguiente:
 
-## Inciso 2.a)
+## Inciso a)
 
 \begin{equation*}
 \bm{X}^T \bm{X}
 \end{equation*}
 
-## Inciso 2.b)
+Tenemos que:
+
+\begin{equation*}
+\bm{X^T} = \begin{pmatrix}
+1 & 1 & \dots & 1 \\
+x_1 & x_2 & \dots & x_n\\
+\end{pmatrix}
+\end{equation*}
+
+Entonces
+
+\begin{equation*}
+\bm{X}^T \bm{X} = \begin{pmatrix}
+1 & 1 & \dots & 1 \\
+x_1 & x_2 & \dots & x_n\\
+\end{pmatrix}
+\begin{pmatrix}
+1 & x_1 \\
+1 & x_2 \\
+\vdots & \vdots \\
+1 & x_n
+\end{pmatrix} = \begin{pmatrix}
+n & x_1+x_2+\dots+x_n\\
+x_1+x_2+\dots+x_n & x_1^2+x_2^2+\dots+x_n^2\\
+\end{pmatrix} = \begin{pmatrix}
+n & \sum_{i=1}^n x_i\\
+\sum_{i=1}^n x_i & \sum_{i=1}^n x_i^2\\
+\end{pmatrix}
+\end{equation*}
+
+## Inciso b)
 
 \begin{equation*}
 \bm{X}^T \bm{y}
 \end{equation*}
 
-## Inciso 2.c)
+Tenemos
+
+\begin{equation*}
+\bm{X}^T \bm{y} = \begin{pmatrix}
+1 & 1 & \dots & 1 \\
+x_1 & x_2 & \dots & x_n\\
+\end{pmatrix}
+\begin{pmatrix}
+y_1 \\
+y_2 \\
+\vdots \\
+y_n
+\end{pmatrix} = \begin{pmatrix}
+y_1+y_2+\dots+y_n\\
+x_1y_1 + x_2y_2+\dots+x_ny_n\\
+\end{pmatrix} = \begin{pmatrix}
+\sum_{i=1}^n y_i\\
+\sum_{i=1}^n x_iy_i\\
+\end{pmatrix}
+\end{equation*}
+
+## Inciso c)
 
 \begin{equation*}
 \left| \bm{X}^T \bm{X} \right|
 \end{equation*}
 
-## Inciso 2.d)
+Sabemos que
+
+\begin{equation*}
+\bm{X}^T \bm{X} = \begin{pmatrix}
+n & \sum_{i=1}^n x_i\\
+\sum_{i=1}^n x_i & \sum_{i=1}^n x_i^2\\
+\end{pmatrix}
+\end{equation*}
+
+Entonces
+
+\begin{equation*}
+\left| \bm{X}^T \bm{X} \right| = n\sum_{i=1}^{n}x_i - \sum_{i=1}^{n}x_i\sum_{i=1}^{n}x_i
+\end{equation*}
+
+## Inciso d)
 
 \begin{equation*}
 \left(\bm{X}^T \bm{X}\right)^{-1}, \text{ ¿qué se debe cumplir para que tal inversa exista?}
 \end{equation*}
 
-## Inciso 2.e)
+Sabemos que 
 
 \begin{equation*}
-\left(\bm{X}^T \bm{X} \right) \bm{X}^T \bm{y}
+\left(\bm{X}^T \bm{X}\right)^{-1} = \dfrac{Ad\left(\bm{X}^T\bm{X}\right)^T}{\left| \bm{X}^T \bm{X} \right|}
+\end{equation*}
+
+Obtenemos
+
+\begin{equation*}
+Ad\left(\bm{X}^T\bm{X}\right) = \begin{pmatrix}
+\sum_{i=1}^n x_i^2 & -\sum_{i=1}^n x_i\\
+-\sum_{i=1}^n x_i & n\\
+\end{pmatrix} = Ad\left(\bm{X}^T\bm{X}\right)^T
+\end{equation*} 
+
+Entonces
+
+\begin{equation*}
+\left(\bm{X}^T \bm{X}\right)^{-1} = \dfrac{Ad\left(\bm{X}^T\bm{X}\right)^T}{\left| \bm{X}^T \bm{X} \right|} = \begin{pmatrix}
+\dfrac{\sum_{i=1}^n x_i^2}{n\sum_{i=1}^{n}x_i - \left(\sum_{i=1}^{n}x_i\right)} & \dfrac{-\sum_{i=1}^n x_i}{n\sum_{i=1}^{n}x_i - \left(\sum_{i=1}^{n}x_i\right)}\\
+\dfrac{-\sum_{i=1}^n x_i}{n\sum_{i=1}^{n}x_i - \left(\sum_{i=1}^{n}x_i\right)} & \dfrac{n}{n\sum_{i=1}^{n}x_i - \left(\sum_{i=1}^{n}x_i\right)}\\
+\end{pmatrix}
+\end{equation*}
+
+Para que exista la inversa de una miatriz el determinante debe de ser diferente de cero
+
+## Inciso e)
+
+\begin{equation*}
+\left(\bm{X}^T \bm{X} \right)^{-1} \bm{X}^T \bm{y}
+\end{equation*}
+
+Tenemos 
+
+\begin{equation*}
+\left(\bm{X}^T \bm{X} \right)^{-1} \bm{X}^T \bm{y} = \dfrac{1}{n\sum_{i=1}^{n}x_i - \left(\sum_{i=1}^{n}x_i\right)}\begin{pmatrix}
+\sum_{i=1}^n x_i^2 & -\sum_{i=1}^n x_i\\
+-\sum_{i=1}^n x_i & n\\
+\end{pmatrix}
+\begin{pmatrix}
+1 & 1 & \dots & 1 \\
+x_1 & x_2 & \dots & x_n\\
+\end{pmatrix}
+\begin{pmatrix}
+y_1 \\
+y_2 \\
+\vdots \\
+y_n
+\end{pmatrix} = \dfrac{1}{n\sum_{i=1}^{n}x_i - \left(\sum_{i=1}^{n}x_i\right)}
+\begin{pmatrix}
+\sum_{i=1}^n x_i^2-\sum_{i=1}^n x_ix_1 & \sum_{i=1}^n x_i^2-\sum_{i=1}^n x_ix_2 & \dots & \sum_{i=1}^n x_i^2-\sum_{i=1}^n x_ix_n\\
+nx_1 - \sum_{i=1}^n x_i & nx_2 - \sum_{i=1}^n x_i & \dots & nx_n - \sum_{i=1}^n x_i\\
+\end{pmatrix}
+\begin{pmatrix}
+y_1 \\
+y_2 \\
+\vdots \\
+y_n
+\end{pmatrix} = \dfrac{1}{n\sum_{i=1}^{n}x_i - \left(\sum_{i=1}^{n}x_i\right)}
+\begin{pmatrix}
+\left(\sum_{i=1}^n x_i^2-\sum_{i=1}^n x_ix_1\right)y_1 + \left(\sum_{i=1}^n x_i^2-\sum_{i=1}^n x_ix_2\right)y_2 + \dots + \left(\sum_{i=1}^n x_i^2-\sum_{i=1}^n x_ix_n\right)y_n\\
+\left(nx_1 - \sum_{i=1}^n x_i\right) + \left(nx_2 - \sum_{i=1}^n x_i\right) + \dots + \left(nx_n - \sum_{i=1}^n x_i\right)\\
+\end{pmatrix}
 \end{equation*}
 
 # Ejercicio 2
