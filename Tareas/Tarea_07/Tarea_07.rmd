@@ -37,6 +37,56 @@ library(latex2exp)
 # Ejercicio 1
 En el análisis del modelo de RLM, calcular ECM$(\hat{\sigma}^2_{_{MCO}})$ y ECM$(\hat{\sigma}^2_{_{MV}})$. A partir de estos resultados decidir qué estimador es mejor.
 
+\begin{proof}
+Recordemos que si una variable aleatoria se distribuye ji-cuadrada con $n$ grados de libertad $X \sim \chi^2_{(n)}$, entonces cumple que $\mathrm{E}(X) = n$ y $\mathrm{V} (X) = 2n$.
+
+Sabemos que $\displaystyle \dfrac{(n - p - 1) \hat{\sigma}^2_{MCO}}{\sigma^2} \sim \chi^2_{(n - p - 1)}$, por lo tanto
+\begin{align*}
+(n - p - 1)
+= \mathrm{E} \left[ \dfrac{(n - p - 1) \hat{\sigma}^2_{MCO}}{\sigma^2} \right]
+= \dfrac{(n - p - 1)}{\sigma^2} \mathrm{E} \left(\hat{\sigma}^2_{MCO} \right) \quad
+&\Rightarrow \quad \mathrm{E} \left(\hat{\sigma}^2_{MCO} \right)
+= \sigma^2 \\
+2(n - p - 1)
+= \mathrm{V} \left[ \dfrac{(n - p - 1) \hat{\sigma}^2_{MCO}}{\sigma^2} \right]
+= \dfrac{(n - p - 1)^2}{\sigma^4} \mathrm{V} \left(\hat{\sigma}^2_{MCO} \right) \quad
+&\Rightarrow \quad \mathrm{V} \left(\hat{\sigma}^2_{MCO} \right)
+= \dfrac{2\sigma^4}{(n - p - 1)} \\
+\end{align*}
+Con lo anterior, se procede a calcular el error cuadrático medio (ECM) para $\hat{\sigma}^2_{MCO}$.
+\begin{align*}
+\mathrm{ECM} \left(\hat{\sigma}^2_{MCO} \right)
+&= \mathrm{B}^2 \left(\hat{\sigma}^2_{MCO} \right) + \mathrm{V} \left(\hat{\sigma}^2_{MCO} \right)
+= 0 + \dfrac{2\sigma^4}{(n - p - 1)} = \dfrac{2}{(n - p - 1)}\sigma^4
+\end{align*}
+
+De forma análoga se procede con $\hat{\sigma}^2$. Sabemos que $\displaystyle \dfrac{n \hat{\sigma}^2}{\sigma^2} \sim \chi^2_{(n - p - 1)}$, por lo tanto
+\begin{align*}
+(n - p - 1)
+= \mathrm{E} \left[ \dfrac{n \hat{\sigma}^2}{\sigma^2} \right]
+= \dfrac{n}{\sigma^2} \mathrm{E} \left(\hat{\sigma}^2 \right) \quad
+&\Rightarrow \quad \mathrm{E} \left(\hat{\sigma}^2 \right)
+= \dfrac{(n - p - 1)}{n}\sigma^2 \\
+2(n - p - 1)
+= \mathrm{V} \left[ \dfrac{n \hat{\sigma}^2}{\sigma^2} \right]
+= \dfrac{n^2}{\sigma^4} \mathrm{V} \left(\hat{\sigma}^2 \right) \quad
+&\Rightarrow \quad \mathrm{V} \left(\hat{\sigma}^2 \right)
+= \dfrac{2(n - p - 1)}{n^2}\sigma^4 \\
+\end{align*}
+Con lo anterior, se procede a calcular el error cuadrático medio (ECM) para $\hat{\sigma}^2$.
+\begin{align*}
+\mathrm{ECM} \left(\hat{\sigma}^2 \right)
+&= \mathrm{B}^2 \left(\hat{\sigma}^2 \right) + \mathrm{V} \left(\hat{\sigma}^2 \right)
+= \left(\dfrac{(n - p - 1)}{n}\sigma^2 - \sigma^2 \right)^2 + \dfrac{2(n - p - 1)}{n^2} \sigma^4 \\
+&= \dfrac{(p + 1)^2}{n^2} \sigma^4 + \dfrac{2(n - p - 1)}{n^2}\sigma^4 \\
+&= \dfrac{p^2 + 2n - 1}{n^2} \sigma^4
+\end{align*}
+\end{proof}
+
+Tenemos así que $\mathrm{ECM} \left(\hat{\sigma}^2_{MCO} \right) = \dfrac{2}{(n - p - 1)}\sigma^4$ y $\mathrm{ECM} \left(\hat{\sigma}^2 \right) = \dfrac{p^2 + 2n - 1}{n^2} \sigma^4$.
+
+Notemos que $n^2 > (n - p - 1)$ implica que $\dfrac{p^2 + 2n - 1}{n^2} < \dfrac{p^2 + 2n - 1}{n - p -1} \ldots$. me falta identificar la diferencia para concluir.
+
 # Ejercicio 2
 En el análisis del modelo RLM, la suma de cuadrados de regresión se define como
 \begin{align*}
