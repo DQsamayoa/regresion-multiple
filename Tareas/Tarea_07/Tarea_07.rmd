@@ -1,0 +1,99 @@
+---
+title: "Regresión múltiple y otras técnicas multivariadas"
+subtitle: "Tarea 07"
+author:
+  - "Rivera Torres Francisco de Jesús"
+  - "Rodríguez Maya Jorge Daniel"
+  - "Samayoa Donado Víctor Augusto"
+  - "Trujillo Barrios Georgina"
+date: "Abril 03, 2019"
+output:
+  pdf_document:
+    toc: false
+    number_sections: false
+    fig_caption: true
+    highlight: kate
+    df_print: kable
+    includes:
+      in_header: tex/header.tex
+fontsize: 11pt
+documentclass: article
+classoption: twoside
+fig_align: "center"
+---
+
+```{r setup, include = FALSE, eval = TRUE}
+knitr::opts_chunk$set(echo = FALSE, eval = TRUE, fig.height = 4)
+
+# Se cargan las librerias a utilizar
+library(tidyverse)
+library(readxl)
+library(scales)
+library(grid)
+library(kableExtra)
+library(latex2exp)
+```
+
+# Ejercicio 1
+En el análisis del modelo de RLM, calcular ECM$(\hat{\sigma}^2_{_{MCO}})$ y ECM$(\hat{\sigma}^2_{_{MV}})$. A partir de estos resultados decidir qué estimador es mejor.
+
+# Ejercicio 2
+En el análisis del modelo RLM, la suma de cuadrados de regresión se define como
+\begin{align*}
+SCR &= \sum_{i = 1}^n \left( \hat{y}_i - \bar{y} \right)^2
+\end{align*}
+donde $\hat{y}_i$ es la i-ésima componente del vector $\hat{\bm{y}}$ y $\bar{y} = \displaystyle \dfrac{1}{n} \sum_{i = 1}^ny_i$. Mostrar que
+\begin{align*}
+SCR &= \bm{y}^T\left(\bm{H} - \dfrac{1}{n}\bm{J}_n \right)\bm{y}
+\end{align*}
+
+# Ejercicio 3
+En el análisis del modelo RLM, mostrar que $\left(\bm{I}_n - \bm{H}\right)\left(\bm{H} - \dfrac{1}{n}\bm{J}_n\right) = \bm{0}_{n\times n}$
+
+# Ejercicio 4
+El conjunto de datos `house_selling_prices_OR.csv` contiene información sobre el precio de venta y características de una muestra de 200 observaciones. El objetivo es ajustar un modelo RLM paraexplicar la distribución del precio de venta en miles de dólares (`house_price`) como función del tamaño de la vivienda en metros cuadrados (`house_size`) y del número de habitaciones (`bedrooms`).
+
+Con los resultados obtenidos, responder lo siguiente.
+
+## Inciso 4.a)
+Reportar e interpretar las estimaciones de los coeficientes del modelo.
+
+## Inciso 4.b)
+Calcular intervalos de confianza simultáneos $95\%$ para los coeficientes del modelo e interpretar los resultados.
+
+
+## Inciso 4.c)
+¿Tiene algún efecto el tamaño de la vivienda en el precio de venta?
+
+## Inciso 4.d)
+¿Tiene algún efecto el número de habitaciones en el precio de venta de la vivienda?
+
+## Inciso 4.e)
+Reportar la estimación de $\sigma^2$ y calcular un intervalo de confianza $95\%$.
+
+## Inciso 4.f)
+Estimar puntualmente y por intervalo la media del precio de venta de las viviendas de 250 metros cuadrados y tres habitaciones.
+
+# Ejercicio 5
+El conjunto de datos `fl_crime.csv` contiene información sobre los 67 del estado de Florida, EUA. Para este ejercicio se debe ajustar un modelo RLM para explicar la distribución de la tasa de crímenes por cada 1000 habitantes (`crime_rate`) como función del porcentaje de adultos con educación superior (`edu`) y del grado de urbanización (`urban`). Con los resultados obtenidos, responder lo siguiente.
+
+## Inciso 5.a)
+Reportar e interpretar las estimaciones de los coeficientes del modelo
+
+## Inciso 5.b)
+Calcular intervalos de confianza simultáneos $95\%$ para los coeficientes del modelo e interpretar los resultados
+
+## Inciso 5.c)
+¿Tiene algún efecto la educación en la tasa de crímenes de los condados de Florida?
+
+## Inciso 5.d)
+¿Tiene algún efecto la urbanización en la tasa de crímenes de los condados de Florida?
+
+## Inciso 5.e)
+Calcular la matriz de correlaciones de las tres variables involucradas en el modelo y reportar los resultados. Tratar de explicar los resultados de los incisos b) y c) a partir de estas correlaciones.
+
+## Inciso 5.f)
+Reportar la estimación de $\sigma^2$ y calcular un intervalo de confianza $95\%$.
+
+## Inciso 5.g)
+Estimar puntualmente y por intervalo la media de la tasa de crímenes para un $65\%$ de adultos con educación superior y un grado de urbanización de $50\%$.
