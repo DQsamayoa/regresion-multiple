@@ -23,7 +23,7 @@ fig_align: "center"
 ---
 
 ```{r setup, include = FALSE, eval = TRUE}
-knitr::opts_chunk$set(echo = FALSE, eval = TRUE, fig.height = 4)
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.height = 3)
 
 # Se cargan las librerias a utilizar
 library(tidyverse)
@@ -81,11 +81,9 @@ Con lo anterior, se procede a calcular el error cuadrático medio (ECM) para $\h
 &= \dfrac{(p + 1)^2}{n^2} \sigma^4 + \dfrac{2(n - p - 1)}{n^2}\sigma^4 \\
 &= \dfrac{p^2 + 2n - 1}{n^2} \sigma^4
 \end{align*}
-\end{proof}
 
 Tenemos así que $\mathrm{ECM} \left(\hat{\sigma}^2_{MCO} \right) = \dfrac{2}{(n - p - 1)}\sigma^4$ y $\mathrm{ECM} \left(\hat{\sigma}^2 \right) = \dfrac{p^2 + 2n - 1}{n^2} \sigma^4$.
-
-Notemos que $n^2 > (n - p - 1)$ implica que $\dfrac{p^2 + 2n - 1}{n^2} < \dfrac{p^2 + 2n - 1}{n - p -1} \ldots$. me falta identificar la diferencia para concluir.
+\end{proof}
 
 # Ejercicio 2
 En el análisis del modelo RLM, la suma de cuadrados de regresión se define como
@@ -97,53 +95,457 @@ donde $\hat{y}_i$ es la i-ésima componente del vector $\hat{\bm{y}}$ y $\bar{y}
 SCR &= \bm{y}^T\left(\bm{H} - \dfrac{1}{n}\bm{J}_n \right)\bm{y}
 \end{align*}
 
+\begin{proof}
+Notemos que:
+\begin{align*}
+\hat{y} &= X\hat{\beta} = Hy,
+& \sum_{i = 1}^n \hat{y}_i^2 = \hat{y}^T\hat{y} &= \left(Hy \right)^T \left(Hy \right),
+& \dfrac{1}{n} \left(\sum_{i = 1}^n y_i \right)^2 &= y^T \left(\dfrac{1}{n}J_n \right) y
+\end{align*}
+con las igualdades previas se tiene:
+\begin{align*}
+SCR &= \sum_{i = 1}^n \left( \hat{y}_i - \bar{y} \right)^2 
+= \sum_{i = 1}^n \left(\hat{y}_i^2 -2\hat{y}_i \bar{y} + \bar{y}^2 \right) 
+= \sum_{i = 1}^n \hat{y}_i^2 - 2 \bar{y} \sum_{i = 1}^n\hat{y}_i + n \bar{y}^2 \\
+&= \sum_{i = 1}^n \hat{y}_i^2 - 2 \bar{y} \sum_{i = 1}^n y_i + n \bar{y}^2, \quad \text{por tarea 2}\\
+&= \sum_{i = 1}^n \hat{y}_i^2 - 2n \bar{y}^2 + n \bar{y}^2
+= \sum_{i = 1}^n \hat{y}_i^2 - n\bar{y}^2 
+= \sum_{i = 1}^n \hat{y}_i^2 - n\left(\dfrac{1}{n} \sum_{i = 1}^n y_i \right)^2 \\
+&= \sum_{i = 1}^n \hat{y}_i^2 - \dfrac{1}{n}\left(\sum_{i = 1}^n y_i \right)^2 
+= \left(Hy \right)^T \left(Hy \right) - y^T \left(\dfrac{1}{n}J_n \right) y \\
+&= y^T H^T Hy - y^T \left(\dfrac{1}{n}J_n \right) y
+= y^T Hy - y^T \left(\dfrac{1}{n}J_n \right) y, \quad \text{ya que } H \text{ es simétrica e idempotente} \\
+&= y^T \left(H - \dfrac{1}{n}J_n \right)y
+\end{align*}
+\end{proof}
+
 # Ejercicio 3
 En el análisis del modelo RLM, mostrar que $\left(\bm{I}_n - \bm{H}\right)\left(\bm{H} - \dfrac{1}{n}\bm{J}_n\right) = \bm{0}_{n\times n}$
 
+\begin{proof}
+\begin{align*}
+\left(I_n - H \right) \cdot \left(H - \dfrac{1}{n}J_n \right)
+&= I \left(H - \dfrac{1}{n}J_n \right) - H \left(H - \dfrac{1}{n}J_n \right) \\
+&= IH - \dfrac{1}{n}IJ_n - HH + \dfrac{1}{n}HJ_n \\
+&= H - \dfrac{1}{n}J_n - H + \dfrac{1}{n}HJ_n, \qquad \text{ya que } H \text{ es idempotente} \\
+&= H - \dfrac{1}{n}J_n - H + \dfrac{1}{n}J_n, \qquad \text{ya que } \dfrac{1}{n}HJ_n = \dfrac{1}{n}J_n \text{ (tarea 6)} \\
+&= \bm{0}_{n \times n}
+\end{align*}
+\end{proof}
+
 # Ejercicio 4
 El conjunto de datos `house_selling_prices_OR.csv` contiene información sobre el precio de venta y características de una muestra de 200 observaciones. El objetivo es ajustar un modelo RLM paraexplicar la distribución del precio de venta en miles de dólares (`house_price`) como función del tamaño de la vivienda en metros cuadrados (`house_size`) y del número de habitaciones (`bedrooms`).
+
+```{r}
+# Se proceden a cargar los datos
+ej4 <- read_csv("datos/house_selling_prices_OR.csv",
+                col_types = cols(house_price = col_double(),
+                                 house_size = col_double(),
+                                 lot_size = col_double(),
+                                 bedrooms = col_integer(),
+                                 bathrooms = col_double(),
+                                 age = col_integer(),
+                                 garage = col_integer(),
+                                 contidion = col_integer(),
+                                 age_cat = col_character()))
+```
+
 
 Con los resultados obtenidos, responder lo siguiente.
 
 ## Inciso 4.a)
 Reportar e interpretar las estimaciones de los coeficientes del modelo.
 
+Considerando el modelo
+\begin{align*}
+y_i &= \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i}
+\end{align*}
+donde $y_i$ hace referencia al precio de la casa i-ésima (`house_price`), $x_{1i}$ hace referencia al tamaño de la casa i-ésima (`house_size`), y $x_{2i}$ hace referencia al número de cuartos en la casa i-ésima (`bedrooms`),
+```{r}
+# Se genera el modelo
+modelo_ej4 <- ej4 %>% 
+              lm(formula = house_price ~ house_size + bedrooms)
+
+coeficientes <- coefficients(modelo_ej4)
+
+# Se imprimen los resultados
+summary(modelo_ej4)
+```
+
+De lo anterior se concluye que los coeficientes son:
+\begin{align*}
+\beta_0 &= `r coeficientes[1]` & \beta_1 &= `r coeficientes[2]` & \beta_2 &= `r coeficientes[3]`
+\end{align*}
+
+En este contexto, el coeficiente $\beta_0$ no tene sentido ya que no existen viviendas con $0\mathrm{m}^2$ y $0$ habitaciones.
+
+El coeficiente $\beta_1$ se interpreta como el incremento del precio de la casa (en dolares) por cada incremento de $1\mathrm{m}^2$ en el tamaño de la casa. Siempre que el número de habitaciones permanezca constante. Por lo que, el incremento de un metro cuadrado en el tamaño de la vivienda implica un incremento de $`r round(coeficientes[2], 2)` \mathrm{USD}$ en el precio de la vivienda.
+
+El coeficiente $\beta_2$ se interpreta como el incremento del precio de la casa (en dolares) por cada habitación extra en la casa. Siempre que el tamaño de la casa se mantenga constante (aunque esto puede sonar contraintuitivo, podría darse el caso de que se hagan modificaciones en la vivienda para reducir el tamaño de una habitación y generar otra nueva). Por lo que, al aumentar en uno el número de habitaciones en la vivienda implica un incremento de $`r round(coeficientes[3], 2)` \mathrm{USD}$ en el precio de la vivienda.
+
+
 ## Inciso 4.b)
 Calcular intervalos de confianza simultáneos $95\%$ para los coeficientes del modelo e interpretar los resultados.
 
+```{r}
+X <- ej4 %>% 
+     mutate(intercepto = 1) %>% 
+     select(intercepto, house_size, bedrooms) %>% 
+     as.matrix()
+
+# Estimación de los intervalos simultaneos
+confint(modelo_ej4, level = (1 - 0.05/6))
+```
+
+Notamos que ningún intervalo de los coeficientes $\beta_0$, $\beta_1$ y $\beta_2$ contienen al cero. Por lo que conlcuimos que los coeficientes son significativos.
 
 ## Inciso 4.c)
 ¿Tiene algún efecto el tamaño de la vivienda en el precio de venta?
 
+```{r}
+# Extraemos los p-values de los coeficientes
+tbl_coeff <- summary(modelo_ej4)$coefficients %>%
+             as.data.frame() %>%
+             rownames_to_column() %>%
+             as_tibble() %>% 
+             rename(coeficientes = rowname)
+
+t_values <- tbl_coeff %>% 
+            pull(`t value`)
+```
+
+De acuerdo con el valor de $t$ de los coeficientes, se tiene que $|T_{\beta_1}| = `r t_values[2]` > `r qt(1 - 0.05/2, 197)` = t^{1 - 0.05/2}_{197}$. Esto quiere decir que existe evidencia para rechazar la hipótesis nula ($H_0 : \beta_1 = 0$) y podemos concluir que hay una relación entre el tamaño de la vivienda y su precio.
+
 ## Inciso 4.d)
 ¿Tiene algún efecto el número de habitaciones en el precio de venta de la vivienda?
+
+De acuerdo con el valor de $t$ de los coeficientes, se tiene que $|T_{\beta_2}| = `r t_values[3]` > `r qt(1 - 0.05/2, 197)` = t^{1 - 0.05/2}_{197}$. Esto quiere decir que existe evidencia para rechazar la hipótesis nula ($H_0 : \beta_2 = 0$) y podemos concluir que hay una relación entre el número de habitaciones de la vivienda y su precio.
 
 ## Inciso 4.e)
 Reportar la estimación de $\sigma^2$ y calcular un intervalo de confianza $95\%$.
 
+```{r}
+# Calculo de sigma2
+y <- ej4 %>% 
+     pull(house_price) %>% 
+     as.matrix()
+
+H <- X %*% solve(t(X) %*% X) %*% t(X)
+
+I <- diag(x = 1, nrow = nrow(X), ncol = nrow(X))
+
+n <- nrow(X)
+p <- 2
+gl <- n - p - 1
+SC_error <- t(y) %*% (I - H) %*% y
+sigma2.hat <- as.double(SC_error / gl)
+```
+
+Sabemos que la estimación de sigma está dada por:
+\begin{align*}
+\hat{\sigma}^2_{MCO} &= \dfrac{1}{n - p - 1}SC_{error} = \bm{y}^T \left(\bm{H} - \dfrac{1}{n}\bm{J}_n \right) \bm{y} = `r round(sigma2.hat, 2)`
+\end{align*}
+
+El intervalo de $95\%$ de confianza está dado por:
+\begin{align*}
+\left(\dfrac{SC_{error}}{\chi^2_{n - p - 1} (1 - \alpha_2)}, \dfrac{SC_{error}}{\chi^2_{n - p - 1}(\alpha_1)} \right), \qquad \text{con } \alpha_1 + \alpha_2 = \alpha, \alpha_1, \alpha_2 > 0
+\end{align*}
+
+A continuación se muestran los intervalos de confianza para distrinas combinaciones de $\alpha_1$ y $\alpha_2$ tales que $\alpha_1 + \alpha_2 = \alpha = 0.05$.
+
+```{r, echo = FALSE}
+intervalos <- tibble(alfa1 = seq(from = 0.000, to = 0.05, by = 0.001)) %>% 
+  mutate(sigma2 = sigma2.hat,
+         iteracion = row_number(),
+         alfa2 = 0.05 - alfa1) %>% 
+  mutate(inferior = gl * sigma2 / qchisq(1 - alfa2, gl),
+         superior = gl * sigma2 / qchisq(alfa1, gl),
+         longitud = superior - inferior)
+
+intervalos %>% 
+  ggplot(aes(x = alfa1, group = 1)) +
+  geom_ribbon(aes(ymin = inferior, ymax = superior), alpha = 0.3) +
+  geom_line(aes(y = sigma2, color = "s2")) +
+  #geom_line(aes(y = longitud, color = "Longitud IC")) +
+  labs(x = TeX("$\\alpha_1$"),
+       y = TeX("$\\sigma^2$")) +
+  # scale_color_manual(values = c("firebrick", "steelblue"),
+  #                    labels = c("Intervalo de Confianza", expression(sigma^2))) +
+  scale_color_manual(values = c("steelblue"),
+                     labels = c(expression(sigma^2))) +
+  theme(legend.position = "top")
+```
+
+Calculando la longitud de cada intervalo se obtiene el siguiente comportamiento:
+
+```{r, echo = FALSE}
+alfa1_min <- intervalos %>% 
+             mutate(alfa1_min = alfa1[which.min(longitud)]) %>% 
+             distinct(alfa1_min) %>% 
+             pull(alfa1_min)
+
+alfa2_min <- 0.05 - alfa1_min
+
+intervalos %>% 
+  ggplot(aes(x = alfa1)) +
+  geom_line(aes(y = longitud, color = "Longitud IC", group = 1)) +
+  labs(x = TeX("$\\alpha_1$"),
+       y = TeX("$\\sigma^2$")) +
+  geom_vline(aes(xintercept = alfa1[which.min(longitud)], color = "a")) +
+  scale_color_manual(values = c("firebrick", "steelblue"),
+                     labels = c("Longitud mínima", "Longitu del intervalo de Confianza")) +
+  theme(legend.position = "top")
+```
+
+Por lo que, el intervalo de confianza con longitud mínima para $\hat{\sigma}^2_{MCO}$ está dado por $\alpha_1 = `r alfa1_min`$, y por ende $\alpha_2 = `r alfa2_min`$. Obteniendo asi el intervalo de confianza:
+\begin{align*}
+\left(`r SC_error/qchisq(1 - alfa2_min, gl)`, `r SC_error/qchisq(alfa1_min, gl)` \right)
+\end{align*}
+
+
 ## Inciso 4.f)
 Estimar puntualmente y por intervalo la media del precio de venta de las viviendas de 250 metros cuadrados y tres habitaciones.
+
+La estimación puntual está dada por:
+```{r}
+x0 <- as.matrix(c(1, 250, 3), ncol = 1)
+mu0 <- as.double(t(x0) %*% as.matrix(coeficientes))
+```
+
+\begin{align*}
+\mu_0 &= \bm{x}^T_0 \hat{\beta} \\
+&= `r coeficientes[1]` + `r coeficientes[2]` * (250) + `r coeficientes[3]` * (3) \\
+&= `r coeficientes[1]` + `r coeficientes[2] * (250)` + `r coeficientes[3] * (3)` \\
+&= `r coeficientes[1] + coeficientes[2] * (250) + coeficientes[3] * (3)`
+\end{align*}
+
+La estimación por intervalo está dada por:
+\begin{align*}
+x^T_0 \hat{\beta} \pm t_{n - p - a} (\alpha/2) \hat{\sigma}_{MCO} \sqrt{1 + x^T_0 \left(\bm{X}^T \bm{X} \right)^{-1} x_0}
+\end{align*}
+sustituyendo los valores anteriores se obtiene
+```{r}
+# Calculamos intervalos de confianza
+alfa <- 0.05
+intervalo <- c(-1, 1) * as.double(qt(1 - alfa/2, gl) * sqrt(sigma2.hat) *
+                                    sqrt(1 + t(x0) %*% solve(t(X) %*% X) %*% x0))
+```
+
+\begin{align*}
+`r mu0` \pm `r intervalo[2]` \\
+(`r mu0 + intervalo[1]`, `r mu0 + intervalo[2]`)
+\end{align*}
+
 
 # Ejercicio 5
 El conjunto de datos `fl_crime.csv` contiene información sobre los 67 del estado de Florida, EUA. Para este ejercicio se debe ajustar un modelo RLM para explicar la distribución de la tasa de crímenes por cada 1000 habitantes (`crime_rate`) como función del porcentaje de adultos con educación superior (`edu`) y del grado de urbanización (`urban`). Con los resultados obtenidos, responder lo siguiente.
 
+```{r}
+# Se proceden a cargar los datos
+ej5 <- read_csv("datos/fl_crime.csv",
+                col_types = cols(county = col_character(),
+                                 crime_rate = col_integer(),
+                                 edu = col_double(),
+                                 urban = col_double(),
+                                 income = col_double()))
+```
+
+
 ## Inciso 5.a)
 Reportar e interpretar las estimaciones de los coeficientes del modelo
+
+Considerando el modelo
+\begin{align*}
+y_i &= \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i}
+\end{align*}
+donde $y_i$ hace referencia a la tasa de crímenes del estado i-ésimo (`crime_rate`), $x_{1i}$ hace referencia al porcentaje de adultos con educación superior en el estado i-ésimo (`edu`), y $x_{2i}$ hace referencia al grado de urbanización del estado i-ésimo (`urban`),
+```{r}
+# Se genera el modelo
+modelo_ej5 <- ej5 %>% 
+              lm(formula = crime_rate ~ edu + urban)
+
+coeficientes <- coefficients(modelo_ej5)
+
+# Se imprimen los resultados
+summary(modelo_ej5)
+```
+
+De lo anterior se concluye que los coeficientes son:
+\begin{align*}
+\beta_0 &= `r coeficientes[1]` & \beta_1 &= `r coeficientes[2]` & \beta_2 &= `r coeficientes[3]`
+\end{align*}
+
+En este contexto, el coeficiente $\beta_0$ no tene sentido ya que no existen estados con un porcentaje de adultos con nivel de educación de $0\%$.
+
+El coeficiente $\beta_1$ se interpreta como el decremento de la tasa de crímenes por cada incremento de $1\%$ en el porcentaje de los adultos con un nivel de educación superior. Siempre que el grado de urbanización permanezca constante. Por lo que, el incremento de un punto porcentual en la cantidad de adultos con un nivel de educación superior implica un decremento de $`r round(coeficientes[2], 2)`$ en la tasa de crímenes.
+
+El coeficiente $\beta_2$ se interpreta como el incremento de la tasa de crímenes por cada incremento de $1$ grado de urbanización. Siempre que porcentaje de adultos con nivel de educación superior permanezca constante. Por lo que, al aumentar en uno el grado de urbanización implica un incremento de $`r round(coeficientes[3], 2)`$ en la tasa de crímenes.
+
 
 ## Inciso 5.b)
 Calcular intervalos de confianza simultáneos $95\%$ para los coeficientes del modelo e interpretar los resultados
 
+```{r}
+# Estimación de los intervalos simultaneos
+confint(modelo_ej5, level = (1 - 0.05/6))
+```
+
+Notamos que los intervalos de confianza tanto para el intercepto como para el coeficiente $\beta_1$, asociado a la variable `edu` contienen el $0$. Por lo que concluimos que dichos coeficientes no son significativos.
+
+El único coeficiente cuyo intervalo de confianza no contiene al $0$ es $\beta_2$, el cual está asociado a `urban`
+
 ## Inciso 5.c)
 ¿Tiene algún efecto la educación en la tasa de crímenes de los condados de Florida?
+
+```{r}
+# Extraemos los p-values de los coeficientes
+tbl_coeff <- summary(modelo_ej5)$coefficients %>%
+             as.data.frame() %>%
+             rownames_to_column() %>%
+             as_tibble() %>% 
+             rename(coeficientes = rowname)
+
+t_values <- tbl_coeff %>% 
+            pull(`t value`)
+```
+
+De acuerdo con el valor de $t$ de los coeficientes, se tiene que $|T_{\beta_1}| = `r abs(t_values[2])` < `r qt(1 - 0.05/2, 64)` = t^{1 - 0.05/2}_{64}$. Esto quiere decir que NO existe evidencia para rechazar la hipótesis nula ($H_0 : \beta_1 = 0$) y podemos concluir que no hay evidencia de que el nivel de educación pueda tener un efecto en la tasa de crímenes.
 
 ## Inciso 5.d)
 ¿Tiene algún efecto la urbanización en la tasa de crímenes de los condados de Florida?
 
+De acuerdo con el valor de $t$ de los coeficientes, se tiene que $|T_{\beta_2}| = `r abs(t_values[3])` > `r qt(1 - 0.05/2, 64)` = t^{1 - 0.05/2}_{64}$. Esto quiere decir que existe evidencia para rechazar la hipótesis nula ($H_0 : \beta_2 = 0$) y podemos concluir que hay evidencia de que el nivel de urbanización pueda tener un efecto en la tasa de crímenes.
+
 ## Inciso 5.e)
 Calcular la matriz de correlaciones de las tres variables involucradas en el modelo y reportar los resultados. Tratar de explicar los resultados de los incisos b) y c) a partir de estas correlaciones.
+
+```{r}
+correlacion <- ej5 %>% 
+               select(crime_rate, edu, urban) %>% 
+               cor()
+
+correlacion
+```
+
+De la matriz de correlación se observa que las variables `edu` y `urban` tienen un alto nivel de correlación al obener un valor de `r round(cor(ej5$edu, ej5$urban), 2)`, esto contradice el supuesto de no correlación.
+
+También se observa que la variable objetivo `crime rate` tiene una mayor correlación con `urban` que con `edu`, esto puede explicar el por qué el nivel de educación no es significativo. Debido a que al tener las variables explicativas una alta correlación, entonces la variable explicativa que está mayormente correlacionada con la variable objetivo "aboservera" el nivel de significancia y permitirá explicar de mejor forma la variable objetivo, en este caso `crime rate`.
 
 ## Inciso 5.f)
 Reportar la estimación de $\sigma^2$ y calcular un intervalo de confianza $95\%$.
 
+```{r}
+# Calculo de sigma2
+X <- ej5 %>% 
+     mutate(intercepto = 1) %>% 
+     select(intercepto, edu, urban) %>% 
+     as.matrix()
+
+y <- ej5 %>% 
+     pull(crime_rate) %>% 
+     as.matrix()
+
+H <- X %*% solve(t(X) %*% X) %*% t(X)
+
+I <- diag(x = 1, nrow = nrow(X), ncol = nrow(X))
+
+n <- nrow(X)
+p <- 2
+gl <- n - p - 1
+SC_error <- t(y) %*% (I - H) %*% y
+sigma2.hat <- as.double(SC_error / gl)
+```
+
+Sabemos que la estimación de sigma está dada por:
+\begin{align*}
+\hat{\sigma}^2_{MCO} &= \dfrac{1}{n - p - 1}SC_{error} = \bm{y}^T \left(\bm{H} - \dfrac{1}{n}\bm{J}_n \right) \bm{y} = `r round(sigma2.hat, 2)`
+\end{align*}
+
+El intervalo de $95\%$ de confianza está dado por:
+\begin{align*}
+\left(\dfrac{SC_{error}}{\chi^2_{n - p - 1} (1 - \alpha_2)}, \dfrac{SC_{error}}{\chi^2_{n - p - 1}(\alpha_1)} \right), \qquad \text{con } \alpha_1 + \alpha_2 = \alpha, \alpha_1, \alpha_2 > 0
+\end{align*}
+
+A continuación se muestran los intervalos de confianza para distrinas combinaciones de $\alpha_1$ y $\alpha_2$ tales que $\alpha_1 + \alpha_2 = \alpha = 0.05$.
+
+```{r, echo = FALSE}
+intervalos <- tibble(alfa1 = seq(from = 0.000, to = 0.05, by = 0.001)) %>% 
+  mutate(sigma2 = sigma2.hat,
+         iteracion = row_number(),
+         alfa2 = 0.05 - alfa1) %>% 
+  mutate(inferior = gl * sigma2 / qchisq(1 - alfa2, gl),
+         superior = gl * sigma2 / qchisq(alfa1, gl),
+         longitud = superior - inferior)
+
+intervalos %>% 
+  ggplot(aes(x = alfa1, group = 1)) +
+  geom_ribbon(aes(ymin = inferior, ymax = superior), alpha = 0.3) +
+  geom_line(aes(y = sigma2, color = "s2")) +
+  #geom_line(aes(y = longitud, color = "Longitud IC")) +
+  labs(x = TeX("$\\alpha_1$"),
+       y = TeX("$\\sigma^2$")) +
+  # scale_color_manual(values = c("firebrick", "steelblue"),
+  #                    labels = c("Intervalo de Confianza", expression(sigma^2))) +
+  scale_color_manual(values = c("steelblue"),
+                     labels = c(expression(sigma^2))) +
+  theme(legend.position = "top")
+```
+
+Calculando la longitud de cada intervalo se obtiene el siguiente comportamiento:
+
+```{r, echo = FALSE}
+alfa1_min <- intervalos %>% 
+             mutate(alfa1_min = alfa1[which.min(longitud)]) %>% 
+             distinct(alfa1_min) %>% 
+             pull(alfa1_min)
+
+alfa2_min <- 0.05 - alfa1_min
+
+intervalos %>% 
+  ggplot(aes(x = alfa1)) +
+  geom_line(aes(y = longitud, color = "Longitud IC", group = 1)) +
+  labs(x = TeX("$\\alpha_1$"),
+       y = TeX("$\\sigma^2$")) +
+  geom_vline(aes(xintercept = alfa1[which.min(longitud)], color = "a")) +
+  scale_color_manual(values = c("firebrick", "steelblue"),
+                     labels = c("Longitud mínima", "Longitu del intervalo de Confianza")) +
+  theme(legend.position = "top")
+```
+
+Por lo que, el intervalo de confianza con longitud mínima para $\hat{\sigma}^2_{MCO}$ está dado por $\alpha_1 = `r alfa1_min`$, y por ende $\alpha_2 = `r alfa2_min`$. Obteniendo asi el intervalo de confianza:
+\begin{align*}
+\left(`r SC_error/qchisq(1 - alfa2_min, gl)`, `r SC_error/qchisq(alfa1_min, gl)` \right)
+\end{align*}
+
 ## Inciso 5.g)
 Estimar puntualmente y por intervalo la media de la tasa de crímenes para un $65\%$ de adultos con educación superior y un grado de urbanización de $50\%$.
+
+La estimación puntual está dada por:
+```{r}
+x0 <- as.matrix(c(1, 65, 50), ncol = 1)
+mu0 <- as.double(t(x0) %*% as.matrix(coeficientes))
+```
+
+\begin{align*}
+\mu_0 &= \bm{x}^T_0 \hat{\beta} \\
+&= `r coeficientes[1]` + `r coeficientes[2]` * (65) + `r coeficientes[3]` * (50) \\
+&= `r coeficientes[1]` + `r coeficientes[2] * (65)` + `r coeficientes[3] * (50)` \\
+&= `r coeficientes[1] + coeficientes[2] * (65) + coeficientes[3] * (50)`
+\end{align*}
+
+La estimación por intervalo está dada por:
+\begin{align*}
+x^T_0 \hat{\beta} \pm t_{n - p - a} (\alpha/2) \hat{\sigma}_{MCO} \sqrt{1 + x^T_0 \left(\bm{X}^T \bm{X} \right)^{-1} x_0}
+\end{align*}
+sustituyendo los valores anteriores se obtiene
+```{r}
+# Calculamos intervalos de confianza
+alfa <- 0.05
+intervalo <- c(-1, 1) * as.double(qt(1 - alfa/2, gl) * sqrt(sigma2.hat) * 
+                                    sqrt(1 + t(x0) %*% solve(t(X) %*% X) %*% x0))
+```
+
+\begin{align*}
+`r mu0` \pm `r intervalo[2]` \\
+(`r mu0 + intervalo[1]`, `r mu0 + intervalo[2]`)
+\end{align*}
