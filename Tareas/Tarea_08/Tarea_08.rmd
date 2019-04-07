@@ -1,0 +1,182 @@
+---
+title: "Regresión múltiple y otras técnicas multivariadas"
+subtitle: "Tarea 08"
+author:
+  - "Rivera Torres Francisco de Jesús"
+  - "Rodríguez Maya Jorge Daniel"
+  - "Samayoa Donado Víctor Augusto"
+  - "Trujillo Barrios Georgina"
+date: "Abril 10, 2019"
+output:
+  pdf_document:
+    toc: false
+    number_sections: false
+    fig_caption: true
+    highlight: kate
+    df_print: kable
+    includes:
+      in_header: tex/header.tex
+fontsize: 11pt
+documentclass: article
+classoption: twoside
+fig_align: "center"
+---
+
+```{r setup, include = FALSE, eval = TRUE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.height = 4)
+
+# Se cargan las librerias a utilizar
+library(tidyverse)
+library(readxl)
+library(scales)
+library(grid)
+library(kableExtra)
+library(latex2exp)
+```
+
+# Ejercicio 1
+Suponer que se tienen $n$ observaciones de tres variables $x, y$ y $z$.
+\begin{align*}
+x_1, &\ldots, x_n & y_1, &\ldots, y_n, & z_1, &\ldots, z_n
+\end{align*}
+Mostrar que
+\begin{align*}
+r_{xy, z} = \dfrac{r_{xy} - r_{xz}r_{yz}}{\sqrt{1 - r^2_{xz}}, \sqrt{1 - r^2_{yz}}}
+\end{align*}
+donde $r_{xy, z}$ denota el coeficiente de correlación parcial de $x$ y $y$ dado $z$ y $r_{\bullet \bullet}$ denota el coeficiente de correlación de Pearson entre dos variables.
+
+# Ejercicio 2
+Con el conjunto de datos `mtcars` de `R`, ajustar un modelo RLM para explicar la distribución del rendimiento (`mpg`) como función del peso (`wt`) y del número de cilindros (`cyl`).
+
+## Inciso 2.a
+Reportar las estimaciones puntuales de los coeficientes del modelo e interpretar los resultados.
+
+Considerando el modelo
+\begin{align*}
+y_i &= \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i}
+\end{align*}
+donde $y_i$ hace referencia rendimiento del auto i-ésimo (`mpg`), $x_{1i}$ hace referencia al peso del auto i-ésimo (`wt`), y $x_{2i}$ hace referencia al número de cilindros del auto i-ésimo (`cyl`):
+```{r}
+# Se genera el mdoelo de RLM
+modelo <- mtcars %>% 
+          lm(formula = mpg ~ wt + cyl)
+
+# Se extraen los coeficientes de regresión
+coeficientes <- coefficients(modelo)
+
+# Se imprime el resultado
+summary(modelo)
+```
+De lo anterior se concluye que los coeficientes son:
+\begin{align*}
+\hat{\beta_0} &= `r coeficientes[1]` & \hat{\beta_1} &= `r coeficientes[2]` & \hat{\beta_2} &= `r coeficientes[3]`
+\end{align*}
+
+El coeficiente $\beta_0$ no tiene un interpretación en este contexto ya que no existen autos que tengan un peso de $0$ libras y $0$ cilindros.
+
+El coeficinete $\beta_1$ se interpreta como el decremento del rendimiento cuando se incrementa el peso del auto en $1$ libra, mientras el número de cilindros de mantiene constante. Por tal motivo, el incremento de una libra en el peso del auto implica un decremento de $`r round(coeficientes[2], 2)`$ unidades en la métrica del rendimiento.
+
+El coeficinete $\beta_2$ se interpreta como el decremento del rendimiento cuando se incrementa el el número de cilindros en $1$, mientras el peso del auto se mantiene constante. Por tal motivo, el incremento de cilindros en una unidad implica un decremento de $`r round(coeficientes[3], 2)`$ unidades en la métrica del rendimiento.
+
+## Inciso 2.b
+Contrastar las hipótesis de significancia del efecto del peso. Interpretar el resultado en el contexto de los datos.
+
+El contraste de hipótesis está dado por:
+\begin{align*}
+H_0 : \beta_1 = 0 \qquad \text{vs} \qquad H_1: \beta_1 \neq 0
+\end{align*}
+```{r, echo = FALSE}
+# Extraemos los p-values de los coeficientes
+tbl_coeff <- summary(modelo)$coefficients %>%
+             as.data.frame() %>%
+             rownames_to_column() %>%
+             as_tibble() %>% 
+             rename(coeficientes = rowname)
+
+alfa <- 0.05
+gl <- modelo$df.residual
+
+t_values <- tbl_coeff %>% 
+            pull(`t value`)
+```
+
+De la tabla mostrada en el inciso anterior, se observa que, con un nivel de significancia de $\alpha = 0.05$, $|T_{\beta_1}| = `r abs(t_values[2])` > `r qt(1 - alfa/2, gl)` = t^{1 - 0.05/2}_{`r gl`}$. Por lo tanto, existe evidencia para rechazar la hipótesis nula y afirmar que el peso del auto puede tener un efecto sobr el rendimiento del auto.
+
+## Inciso 2.c
+Contrastar las hipótesis de significancia del efecto del número de cilindros. Interpretar el resultado en el contexto de los datos.
+
+El contraste de hipótesis está dado por:
+\begin{align*}
+H_0 : \beta_2 = 0 \qquad \text{vs} \qquad H_1: \beta_2 \neq 0
+\end{align*}
+
+De la tabla mostrada en el inciso 2.a), se observa que, con un nivel de significancia de $\alpha = 0.05$, $|T_{\beta_2}| = `r abs(t_values[3])` > `r qt(1 - alfa/2, gl)` = t^{1 - 0.05/2}_{`r gl`}$. Por lo tanto, existe evidencia para rechazar la hipótesis nula y afirmar que el número de cilindros puede tener un efecto sobr el rendimiento del auto.
+
+## Inciso 2.d
+Estimar puntualmente y por intervalo de confianza $90\%$ del rendimiento medio de un auto que pesa $2500$ libras y tiene $3$ cilindros.
+
+```{r}
+x0 <- tibble(wt = 2500,
+             cyl = 3)
+
+predict(modelo, newdata = x0, interval = "confidence", level = 0.9)
+```
+
+## Inciso 2.e
+Calcular un intervalo de predicción del rendimiento de un auto que pesa $2500$ libras y tiene $3$ cilindros.
+
+```{r}
+predict(modelo, newdata = x0, interval = "prediction", level = 0.9)
+```
+
+## Inciso 2.f
+Escribir las tres rectas de regresión ajustadas del rendimiento medio como función del peso condicional a 4, 6 y 8 cilindros, respectivamente.
+
+Se busca ajustar modelos
+\begin{align*}
+\mu_{i | 4} &= \mathrm{E} \left(y_{i} | cyl = 4 \right) = \beta_{0|4} + \beta_{1|4} x_{i|4} \\
+\mu_{i | 6} &= \mathrm{E} \left(y_{i} | cyl = 6 \right) = \beta_{0|6} + \beta_{1|6} x_{i|6} \\
+\mu_{i | 8} &= \mathrm{E} \left(y_{i} | cyl = 8 \right) = \beta_{0|8} + \beta_{1|8} x_{i|8}
+\end{align*}
+donde $\mu_{i|n}$ significa el valor promedio del rendimiento del auto i-ésimo con $n$ número de cilindros, $\beta_{0|n}$ es el coeficiente de intersección del modelo condicionado a $n$ número de cilindros, $\beta_{1|n}$ es el coeficiente del peso del modelo condicionado a $n$ número de cilindros y $x_{i|n}$ es el peso del auto i-ésimo con $n$ número de cilindros.
+
+```{r}
+# Se generan los modelos
+modelo_cyl4 <- mtcars %>% 
+               filter(cyl == 4) %>% 
+               lm(formula = mpg ~ wt)
+
+modelo_cyl6 <- mtcars %>% 
+               filter(cyl == 6) %>% 
+               lm(formula = mpg ~ wt)
+
+modelo_cyl8 <- mtcars %>% 
+               filter(cyl == 8) %>% 
+               lm(formula = mpg ~ wt)
+
+# Se extraen los coeficientes de regresión
+coeff_cyl4 <- coefficients(modelo_cyl4)
+coeff_cyl6 <- coefficients(modelo_cyl6)
+coeff_cyl8 <- coefficients(modelo_cyl8)
+```
+
+Por lo tanto los modelos ajustados son:
+\begin{align*}
+\mu_{i|4} &= `r round(coeff_cyl4[1], 2)` `r round(coeff_cyl4[2], 2)` x_{i|4}, \qquad \text{condicional a $4$ cilindros} \\
+\mu_{i|6} &= `r round(coeff_cyl6[1], 2)` `r round(coeff_cyl6[2], 2)` x_{i|6}, \qquad \text{condicional a $6$ cilindros} \\
+\mu_{i|8} &= `r round(coeff_cyl8[1], 2)` `r round(coeff_cyl8[2], 2)` x_{i|8}, \qquad \text{condicional a $8$ cilindros}
+\end{align*}
+
+
+## Inciso 2.g
+Graficar un diagrama de dispersión de `mpg` contra `wt` y sobreponer las tres rectas de regresión ajustadas. Colorear los puntos y las rectas según el número de cilindros y agregar la leyenda correspondiente.
+
+```{r}
+mtcars %>% 
+  mutate(cyl = as.factor(cyl)) %>% 
+  ggplot(aes(x = wt, y = mpg, color = cyl)) +
+  geom_smooth(method = "lm", formula = y ~ x, fullrange = TRUE,
+              se = FALSE) +
+  geom_point()
+```
+
