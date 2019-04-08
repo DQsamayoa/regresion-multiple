@@ -179,11 +179,14 @@ De lo anterior se concluye que los coeficientes son:
 
 En este contexto, el coeficiente $\beta_0$ no tene sentido ya que no existen viviendas con $0\mathrm{m}^2$ y $0$ habitaciones.
 
-El coeficiente $\beta_1$ se interpreta como el incremento del precio de la casa (en dolares) por cada incremento de $1\mathrm{m}^2$ en el tamaño de la casa. Siempre que el número de habitaciones permanezca constante. Por lo que, el incremento de un metro cuadrado en el tamaño de la vivienda implica un incremento de $`r round(coeficientes[2], 2)` \mathrm{USD}$ en el precio de la vivienda.
+El coeficiente $\beta_1$ se interpreta como el incremento del precio de la casa (en miles de dólares) por cada incremento de $1\mathrm{m}^2$ en el tamaño de la casa. Siempre que el número de habitaciones permanezca constante. Por lo que, el incremento de un metro cuadrado en el tamaño de la vivienda implica un incremento de $`r round(coeficientes[2], 2)` \mathrm{USD}$ en el precio de la vivienda.
 
 El coeficiente $\beta_2$ se interpreta como el incremento del precio de la casa (en dolares) por cada habitación extra en la casa. Siempre que el tamaño de la casa se mantenga constante (aunque esto puede sonar contraintuitivo, podría darse el caso de que se hagan modificaciones en la vivienda para reducir el tamaño de una habitación y generar otra nueva). Por lo que, al aumentar en uno el número de habitaciones en la vivienda implica un incremento de $`r round(coeficientes[3], 2)` \mathrm{USD}$ en el precio de la vivienda.
+No obstante, de la gráfica siguiente podemos ver que el supuesto de mantener constante una variable cuando la otra cambia (entre las variables baños y tamaño de la casa) no se cumplen tajantemenete, tampoco son variables correlacionadas estrechamente (en concreto su correlación es de `r cor(ej4$house_size, ej4$bedrooms)`).
 
-
+```{r}
+plot(ej4$house_size, ej4$bedrooms)
+```
 ## Inciso 4.b)
 Calcular intervalos de confianza simultáneos $95\%$ para los coeficientes del modelo e interpretar los resultados.
 
