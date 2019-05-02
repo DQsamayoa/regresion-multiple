@@ -33,3 +33,214 @@ library(grid)
 library(kableExtra)
 library(latex2exp)
 ```
+
+# Ejercicio 1
+Enunciar los supuestos del modelo de regresión múltiple.
+
+El modelo de regresión múltiple modela una variable aleatoria $Y$ condicional a un conjunto de variables auxiliares $X_1, \ldots, X_p$ mismas que se asumen no aleatorias tales que
+\begin{align*}
+Y_ i &= \mathbf{x}_i^T \beta + \varepsilon_i, \quad i = 1, \ldots, n
+\end{align*}
+donde $\mathbf{x}_i^T = (1, x_{1i}, \ldots, x_{pi})$ es la observación i-ésima, con $i = 1, \ldots, n$.
+
+1. Linealidad
+\begin{align*}
+\mathrm{E} \left(Y_i | x_i \right) = \mathbf{x}_i^T \beta, \quad i = 1, \ldots, n
+\end{align*}
+
+2. Homocedasticidad (varianza constante)
+\begin{align*}
+\mathrm{V} \left(Y_i | x_i \right) = \sigma^2, \quad i = 1, \ldots, n
+\end{align*}
+
+3. No correlación
+\begin{align*}
+\mathrm{Cov} \left(Y_i, Y_j | x_i, x_j \right) = 0, \quad i, j = 1, \ldots, n \text{ e } i \neq j
+\end{align*}
+
+# Ejercicio 2
+Enuncie correctamente el Teorema de Gauss-Markov para el estimador de $\beta$ en el modelo de regresión
+múltiple.
+
+En el modelo RLM $\mathbf{Y} = \mathbf{X} \beta + \varepsilon$, bajos las hipótesis:
+
+- $\varepsilon \sim \left(\mathbf{0}, \sigma^2 \mathbf{I} \right)$
+- $\mathbf{X}$ es una matriz de rango completo
+
+el estimador de MCO de $\beta$ es el MELI. Esto es, $\hat{\beta}$ es insesgado para $\beta$ y si $\tilde{\beta}$ es otro estimador insesgado de $\beta$ y $\mathbf{v}$ es un vector de dimensión $p + 1$ distinto de $\mathbf{0}$, entonces $\mathbf{v}^{\prime}V \left(\tilde{\beta} \right) \mathbf{v} \geqslant \mathbf{v}^{\prime}V \left(\hat{\beta} \right) \mathbf{v}$. Lo anterior implica que no es posible encontrar otro estimador de $\beta$ que siendo lineal e insesgado tenga una varianza menor que el estimador de MCO de $\beta$.
+
+# Ejercicio 3
+Mostrar que el estadístico $F$ utilizado para contrastar las hipótesis
+\begin{align*}
+H_0 : \beta_1 = \cdots = \beta_p = 0 \quad v.s. \quad H_1 : \beta_i \neq 0, \text{ para alguna } i
+\end{align*}
+se puede escribir como
+\begin{align*}
+F &= \dfrac{R^2(n - p - 1)}{p(1 - R^2)}
+\end{align*}
+donde $R^2$ es el coeficiente de determinación del modelo.
+
+\begin{proof}
+Sabemos que bajo la hipótesis nula ($H_0$) se tiene que
+\begin{align*}
+F &= \dfrac{\dfrac{SC_{reg}}{p}}{\dfrac{SC_{error}}{(n - p - 1)}}
+\end{align*}
+además, el coeficiente de determinación del modelo RLM está dado por:
+\begin{align*}
+R^2 = \dfrac{SC_{reg}}{SC_{tot}} = 1 - \dfrac{SC_{error}}{SC_{tot}}
+\end{align*}
+entonces se tiene que:
+\begin{align*}
+F &= \dfrac{\dfrac{SC_{reg}}{p}}{\dfrac{SC_{error}}{(n - p - 1)}}
+= \dfrac{\dfrac{SC_{reg}}{p}}{\dfrac{SC_{error}}{(n - p - 1)}} \cdot \dfrac{\dfrac{1}{SC_{tot}}}{\dfrac{1}{SC_{tot}}} 
+= \dfrac{\dfrac{SC_{reg}}{SC_{tot}} \cdot \dfrac{1}{p}}{\dfrac{SC_{error}}{SC_{tot}} \cdot \dfrac{1}{(n - p - 1)}}
+= \dfrac{\dfrac{R^2}{p}}{\dfrac{1 - R^2}{(n - p - 1)}} \\
+&= \dfrac{R^2 (n - p - 1)}{p (1 - R^2)}
+\end{align*}
+\end{proof}
+
+# Ejercicio 4
+Suponer que se ha ajsutado un modelo de regresión lineal con $p = 2$ variables explicativas y $n = 25$ observaciones y que los resultados muestran que $R^2 = 0.90$.
+
+## Inciso 4.a
+Contrastar la hipótesis de significancia de la regresión. Utilizar $\alpha = 0.05$
+
+```{r, echo = FALSE}
+n <- 25
+p <- 2
+r2 <- 0.90
+
+f.obs <- (r2*(n - p - 1))/(p*(1 - r2))
+```
+
+
+Del ejercicio 3, sabemos que
+\begin{align*}
+F &= \dfrac{R^2(n - p - 1)}{p(1 - R^2)}
+= \dfrac{0.90(25 - 2 - 1)}{2(1 - 0.90)}
+= `r f.obs`
+\end{align*}
+
+Por otro lado,
+```{r, echo = TRUE}
+alpha <- 0.05
+f.a <- qf(1 - alpha, df1 = 2, df2 = 22)
+```
+Es decir, el cuantil de la distribución de referencia es $F_0 = `r f.a`$, el cual es un valor menor a F = `r f.obs`. Esto implica que se debe rechazar $H_0$ con un nivel de significancia del $\alpha = 0.05$.
+
+## Inciso 4.b
+¿Cuál es el mínimo valor de $R^2$ que nos lleva a concluir que la regresión es significativa?
+
+Sabemos que se rechaza $H_0$ (la regresión es significativa) si $F_0 \leqslant F$, por tal motivo
+\begin{align*}
+F_0 \leqslant \dfrac{R^2 (n - p - 1)}{p (1 - R^2)} \quad &\Rightarrow \quad F_0 p (1 - R^2) \leqslant R^2(n - p - 1) \\
+\quad &\Rightarrow \quad F_0p \leqslant R^2(n - p -1) + F_0pR^2
+\end{align*}
+entonces
+\begin{align*}
+\dfrac{F_0 p}{n - p - 1 + F_0 p} \leqslant R^2
+\end{align*}
+
+Por tal motivo, el mínimo valor de $R^2$ que lleva a concluir que la regresión es significativa es:
+\begin{align*}
+R^2_{min} = \dfrac{F_0p}{n - p - 1 + F_0p}
+= \dfrac{`r f.a` * `r p`}{`r n` - `r p` - 1 + `r f.a` * `r p`}
+= `r p*f.a/(n - p - 1 + f.a*p)`
+\end{align*}
+
+Lo anterior lo podemos visualizar en la siguiente gráfica
+
+```{r, echo = FALSE}
+tibble(r2 = seq(from = 0, to = 0.75, by = 0.0001)) %>% 
+  mutate(n = 25, p = 2,
+         f.obs = (r2*(n - p - 1))/(p*(1 - r2))) %>%
+  mutate(flag = (f.obs >= f.a)) %>% 
+  group_by(flag) %>% 
+  mutate(r2_min = min(r2)) %>%
+  ungroup() %>% 
+  mutate(r2_min = max(r2_min)) %>%
+  mutate(flag = (r2 == r2_min)) %>% 
+  group_by(flag) %>% 
+  mutate(y_min = if_else(flag, f.obs, 0)) %>% 
+  ungroup() %>% 
+  mutate(y_min = max(y_min)) %>% 
+  ggplot(aes(x = r2, y = f.obs)) +
+  geom_line(color = "steelblue") +
+  geom_hline(yintercept = f.a, color = "firebrick") +
+  geom_text(aes(x = 0, y = f.a, label = "F0"), nudge_y = 1) +
+  geom_point(aes(x = r2_min, y = y_min)) +
+  geom_text(aes(x = r2_min, y = y_min, label = r2_min), nudge_y = 1) +
+  labs(title = "F vs R^2",
+       x = "R^2",
+       y = "F") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Se observa que un valor de $R^2 = `r p*f.a/(n - p - 1 + f.a*p)`$ es el mínimo que cumple que $F_0 \leqslant F$.
+
+# Ejercicio 5
+Suponer que se ajusta el modelo
+\begin{align*}
+Y &= \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_3 + \beta_4 X_4 + \varepsilon
+\end{align*}
+En cada caso, indicar qué matriz $\mathbf{A}$ y qué vector $\mathbf{b}$ se deben utilizar para contrastar las siguientes hipótesis
+
+## Inciso 5.a
+\begin{align*}
+\beta_1 = \beta_2 = \beta_3 = \beta_4
+\end{align*}
+
+## Inciso 5.b
+\begin{align*}
+\beta_1 = \beta_2, \beta_3 = \beta_4
+\end{align*}
+
+## Inciso 5.c
+\begin{align*}
+\beta_1 - 2 \beta_2 = 4 \beta_3, \beta_1 + 2 \beta_2 = 0
+\end{align*}
+
+# Ejercicio 6
+Se ajustó con `R` un modelo lineal para explicar el ingreso por trabajo en los hogares a partir del gasto, un índice de características de la vivienda y un índice de equipamiento de las viviendas (bienes). Los resultados se muestran a continuación:
+
+```
+Coefficients:
+Estimate Std. Error t value Pr(>|t|)
+(Intercept) 273.09923 3843.94478 0.071 0.9434
+Gasto 0.90400 0.02202 41.059 <2e-16 ***
+1
+Vivienda -25.67979 48.07923 -0.534 0.5938
+Bienes 44.90692 17.99172 2.496 0.0132 *
+---
+Signif. codes: 0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Residual standard error: 2524 on 241 degrees of freedom
+Multiple R-squared: 0.898,Adjusted R-squared: 0.8967
+F-statistic: 707.3 on 3 and 241 DF, p-value: < 2.2e-16
+```
+## Inciso 6.a
+¿El modelo es significativo?
+
+
+## Inciso 6.b
+Calcular intervalos de confianza simultáneos con el método de Hottelling-Scheffé para $\beta_0, \beta_1, \beta_2$ y $\beta_3$.
+
+## Inciso 6.c
+¿Qué variables son significativas para explicar el ingreso?
+
+## Inciso 6.d
+¿Qué porcentaje de la varianza del ingreso es explicada por el modelo?
+
+## Inciso 6.e
+¿Cómo interpretaría la estimación del coeficiente del gasto?
+
+## Inciso 6.f
+¿Sería mejor ajustar un modelo sin intercepto?
+
+## Inciso 6.g
+¿Se podría afirmar que el índice de vivienda tiene un efecto negativo en el ingreso?
+
+## Inciso 6.h
+¿Qué cambios propondría para mejorar el modelo?
+
+## Inciso 6.i
+Construir la tabla ANOVA con los resultados del ajuste del modelo.
