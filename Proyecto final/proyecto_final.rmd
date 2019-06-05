@@ -1,0 +1,267 @@
+---
+title: "Regresión múltiple y otras técnicas multivariadas"
+subtitle: "Proyecto Final"
+author:
+  - "Rivera Torres Francisco de Jesús"
+  - "Rodríguez Maya Jorge Daniel"
+  - "Samayoa Donado Víctor Augusto"
+  - "Trujillo Barrios Georgina"
+date: "Junio  04, 2019"
+output:
+  pdf_document:
+    toc: false
+    number_sections: false
+    fig_caption: true
+    highlight: kate
+    df_print: kable
+    includes:
+      in_header: tex/header.tex
+fontsize: 12pt
+documentclass: article
+classoption: twoside
+fig_align: "center"
+---
+
+```{r setup, include = FALSE, eval = TRUE}
+knitr::opts_chunk$set(echo = FALSE, eval = TRUE, fig.height = 3)
+
+# Se cargan las librerias a utilizar
+library(leaps)
+library(MASS)
+library(tidyverse)
+library(readxl)
+library(scales)
+library(grid)
+library(kableExtra)
+library(latex2exp)
+library(ggcorrplot)
+
+datos_path <- "datos/"
+```
+
+# Introducción
+
+Aqui ponemos la motivación...
+
+La variable objetivo es inversión extranjera
+
+# Análisis exploratorio
+
+En esta sección se procederá a realizar el análisis exploratorio con el objetivo de tener una mejor entendimiento sobre el comportamiento de los datos.
+
+```{r}
+datos <- paste0(datos_path, "ciudades.csv") %>% 
+         read_csv(col_types = cols(.default = col_double(),
+                                    ciudad = col_character(),
+                                    diversif_econ = col_integer()
+                                   )
+                  ) %>% 
+         select(-ciudad)
+```
+
+Generamos las gráficas boxplot para comprender los rangos y distribuciones de cada una de las variables:
+
+```{r, fig.height = 9}
+datos %>% 
+  gather(key = variable, value = medicion) %>% 
+  ggplot(aes(x = 0, y = medicion)) +
+  geom_boxplot(outlier.colour = "firebrick") +
+  facet_wrap(vars(variable), scales = "free", ncol = 3) +
+  labs(title = "Diagramas de boxplot",
+       y = "Valores") +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_blank(),
+        axis.title.x = element_blank())
+```
+
+Con la gráfica anterior logramos apreciar que muchas variables parecen tener una distribución simétrica. Sin embargo, existen otras variables que tienen un sesgo a la derecha:
+
+- Desastres
+- Inversión extranjera
+- Muertes de infantes
+- PIB
+- Robo de mercancias
+- Tarjetas de débito y crédito
+
+Para estas variables elaboraremos sus histográmas para entender en mejor manera su comprotamiento:
+
+```{r, fig.height = 4.5}
+datos %>% 
+  select(desastres, inversion_extranjera, muerte_infIntes, pib, robo_mercancias, tarjetasDebCred) %>% 
+  gather(key = variable, value = medicion) %>% 
+  ggplot(aes(x = medicion)) +
+  geom_histogram(bins = 35) +
+  facet_wrap(vars(variable), scales = "free", ncol = 3) +
+  labs(title = "Histogramas para las variables sesgadas a la derecha",
+       y = "Conteo") +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_blank(),
+        axis.title.x = element_blank())
+```
+
+
+
+Procedemos a analizar las correlaciones entre los pares de variables:
+
+```{r, fig.height = 5}
+datos %>%
+  cor() %>% 
+  ggcorrplot(method = "square", type = "upper", colors = c("firebrick", "white", "steelblue"))
+```
+
+En la gráfica anterior se puede apreciar que las variables que más alta correlación tienen son el `pib` con `inversion_extranjera`, por lo que procedemos a realizar un diagrama de dispersión para estas dos variables.
+
+```{r}
+datos %>% 
+  ggplot(aes(x = pib, y = inversion_extranjera)) +
+  geom_point() +
+  labs(title = "Inversión extranjera contra PIB",
+       x = "PIB",
+       Y = "Inversión extranjera") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+# Selección de modelos
+
+Una vez se tiene un panorama del comportamiento de los datos, procedemos a generar modelos que nos ayuden a explicar la **inversion extranjera**.
+
+
+## Modelo 1
+
+Ajustamos un modelo utilizando todas las variables para tener una punto de referencia del nivel de significancia del modelo y cuál es la máxima varianza que se puede explicar.
+
+```{r}
+modelo1 <- datos %>% 
+           lm(formula = inversion_extranjera ~ .)
+
+summary(modelo1)
+```
+
+## Modelo 2
+
+Debido a que son muchas variables, decidimos utilizar la selección en ambas direcciones para seleccionar un subconjunto de variables para el modelo.
+
+```{r}
+# fit.null <- lm(inversion_extranjera ~ 1, data = datos)
+# 
+# fit.full <- lm(inversion_extranjera ~ ., data = datos)
+# 
+# fit.both <- stepAIC(fit.null, direction = 'both',
+#                     scope = list(lower = fit.null, upper = fit.full))
+
+modelo2 <- datos %>% 
+       lm(formula = inversion_extranjera ~ pib + empl_formales + ingresos_propios + 
+            tarjetasDebCred + percepcionSeguridad + diversif_econ + gini_salarial + 
+            desastres)
+
+summary(modelo2)
+```
+
+
+# Validación de supuestos y acciones correctivas
+
+En esta sección se procede a validar los supuestos correspondientes a los modelos de regresión lineal múltiple (RLM).
+
+## Linealidad
+
+Sabemos que uno de los supuestos de los modelos de RLM es que la variable a explicar tenga una distribución normal alderedor del valor esperado por el modelo ajustado.
+\begin{align*}
+\mathrm{E} (Y_i | \mathrm{x}_i) &= \mathrm{x}_i^T \beta, \qquad i = 1, \ldots, n
+\end{align*}
+
+### Modelos 1 y 2
+
+En ambos modelos la variable a explicar es la inversión extranjera, por lo que se procede acomparar la distribución de dicha varaible y su transformación `log(inversion extranjera)`. Debido a que ya habíamos observado que dicha varaible tenía un sesgo hacia la derecha.
+
+```{r}
+datos %>% 
+  mutate(log_inversion_extranjera = log(inversion_extranjera)) %>% 
+  gather(key = variable, value = medicion, c(log_inversion_extranjera, inversion_extranjera)) %>% 
+  ggplot(aes(x = medicion)) +
+  geom_density() +
+  facet_wrap(vars(variable), scales = "free") +
+  labs(title = "Comparación entre la variable original y su transformación",
+       x = "Valor",
+       y = "Densidad") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+En la gráfica anteriro se puede apreciar que al aplicarle logaritmo a la variable se obtiene una forma más simétrica. Por lo que procedemos a realizar la comparación en la gráfica QQ-norm para determianr qué tato se aproxima a una distrbución normal.
+
+```{r}
+datos <- datos %>% 
+  mutate(log_inversion_extranjera = log(inversion_extranjera))
+
+media <- mean(datos$log_inversion_extranjera)
+desv_st <- sd(datos$log_inversion_extranjera)
+
+datos %>% 
+  gather(key = variable, value = medicion, c(log_inversion_extranjera, inversion_extranjera)) %>% 
+  ggplot(aes(sample = medicion)) +
+  stat_qq(dparams = list(mean = media, sd = desv_st)) +
+  stat_qq_line(dparams = list(mean = media, sd = desv_st)) +
+  facet_wrap(vars(variable), scales = "free") +
+  labs(title = "Gráficas QQ-Norm",
+       x = "Distribución teórica",
+       y = "Datos observados") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+En este caso se logra apreciar que los datos transformados del logaritmo se ajustan mejor a una distribución normal con media $\mu = `r media`$ y desviación estandar $\sigma = `r desv_st`$.
+
+## Homocedasticidad
+
+Para este supuesto debemos revisar que la varianza es constante
+\begin{align*}
+\mathrm{V} (Y_i | \mathrm{x}_i) &= \sigma^2, \qquad i = 1, \ldots, n
+\end{align*}
+
+### Modelo 1
+
+
+### Modelo 2
+
+
+## No correlación
+
+Generamos el diagrama de dispersión
+\begin{align*}
+\mathrm{Cor} (Y_i, Y_j | \mathrm{x}_i, \mathrm{x}_j) = 0, \qquad i, j = 1, \ldots, n, \qquad i\neq j
+\end{align*}
+
+### Modelo 1
+
+
+### Modelo 2
+
+
+# Análisis de observaciones atípicas y observaciones influyentes
+
+A continuación procedemos a analizar los datos atípicos y las observaciones influyentes que observamos en los datos tanto en el análsisi exploratorio como en el análisis de validación de supuestos.
+
+### Modelo 1
+
+En este modelo notamos que variables como el PIB tenían datos influyentes, principalemte el datos más extremo asociado al valle de México. Por lo que se decidió aplicar una transformación logaritmo para minizar dicho efecto y no tener que eliminarlos del análisis.
+
+```{r}
+datos <- datos %>% 
+         mutate(log_pib = log(pib))
+
+datos %>% 
+  ggplot(aes(x = log_pib, y = log_inversion_extranjera)) +
+  geom_point() +
+  labs(title = "Log(Inversión extranjera) contra Log(PIB)",
+       x = "Log(PIB)",
+       Y = "Log(Inversión extranjera)") +
+  theme(plot.title = element_text(hjust = 0.5))
+  
+```
+
+
+
+### Modelo 2
+
+En este modelo también se tiene la variable PIB con explicativa, por lo que se procede a realizar la misma tranformación al PIB y se vuelve a ajustar el modelo.
+
+# Análisis del modelo final
+

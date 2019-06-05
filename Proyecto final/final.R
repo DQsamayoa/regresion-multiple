@@ -1,7 +1,7 @@
 
 # 0. PROYECTO FINAL REGRESIÓN ---------------------------------------------
 
-setwd("C:/git/regresion-multiple/Proyecto final")
+#setwd("C:/git/regresion-multiple/Proyecto final")
 ciudades <- read.table("ciudades.csv", 
                         header = TRUE, sep = ",")
 ciudades <- ciudades[2:ncol(ciudades)]
