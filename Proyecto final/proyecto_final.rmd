@@ -1,4 +1,4 @@
----
+﻿---
 title: "Regresión múltiple y otras técnicas multivariadas"
 subtitle: "Proyecto Final"
 author:
@@ -41,9 +41,31 @@ datos_path <- "datos/"
 
 # Introducción
 
-Aqui ponemos la motivación...
 
-La variable objetivo es inversión extranjera
+La inversión extranjera suele impactar positivamente el crecimiento económico y, en general, tiene consecuencias deseables para una economía: fuente de generación de empleo o transferencias tecnológicas, por ejemplo. Los análisis sobre el crecimiento económico suelen comparar resultados estatales y en este sentido ignoran la heterogeneidad estatal. Por ello, con un objetivo exploratorio, proponemos un análisis centrado en ciudades que permita dar cuenta de cuáles son los factores que explican la inversión extranjera (eligiendo de entre aquellas variables que típicamente se utilizan en el análisis del desarrollo económico) y, aún más, de cómo estos inciden en ella. 
+
+Para este análisis usamos la base de datos de que el IMCO genera con el propósito de calcular un índice de competitividad de ciudades. Nuestro objetivo, más allá de realizar una clasificación, es encontrar los factores determinantes que explican la inversión extranjera y, por ello, consideramos conveniente centrarnos en las ciudades más importantes del país: en el entendido, de que son las ciudades las que típicamente impulsan el crecimiento de un estado y de que la inversión puede verse condicionada por características locales más que por estadísticas agregadas estatales (las cuales si bien pueden influir, intuimos que no son más fuertes que las condiciones estrictamente locales). Con este impulso, hicimos una preselección intuitiva de variables que pensamos podrían influir en la decisión de invertir: 
+
+* percepción de seguridad de las ciudades, medida como porcentaje de ciudadanos que reportan sentirse seguros, 
+* ingresos propios del gobierno (como una proxy de qué tan bueno es el gobierno), 
+* monto reportado en robo de mercancías en la ciudad (medida como pesos por cada millón de pesos de PIB), 
+* mortalidad infantil (decesos de menores de un año por cada mil nacidos vivos), 
+* tasa de suicidios (por cada 100 mil habitantes), 
+* viviendas deshabitadas (como porcentaje de las viviendas), 
+* escuelas de calidad (porcentaje de escuelas con desempeño bueno o excelente en prueba PLANEA), 
+* muertes por infecciones intestinales (por cada 100 mil habitantes), 
+* empleados en el sector formal (como porcentaje de la población ocupada), 
+* diversificación económica (número de sectores económicos presentes), 
+* salario mensual para trabajadores de tiempo completo (pesos corrientes), 
+* desigualdad salarial (coeficiente de Gini salarial), 
+* densidad poblacional (personas por hectárea),
+* desempleo (porcentaje de la PEA),
+* número de tarjetas de débito y crédito por cada adulto (proxy de servicios financieros),
+* pib (Miles de pesos 2014),
+* número de declaratorias de desastre en los últimos tres años,
+* inversion extranjera	(dólares per cápita en promedio 3 años),
+* número de empresas por cada mil de PEA
+
 
 # Análisis exploratorio
 
