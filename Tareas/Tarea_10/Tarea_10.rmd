@@ -219,28 +219,67 @@ F-statistic: 707.3 on 3 and 241 DF, p-value: < 2.2e-16
 ```
 ## Inciso 6.a
 ¿El modelo es significativo?
-
+Sí, dado el pvalue de la prueba F.
 
 ## Inciso 6.b
 Calcular intervalos de confianza simultáneos con el método de Hottelling-Scheffé para $\beta_0, \beta_1, \beta_2$ y $\beta_3$.
 
+```{r}
+
+
+```
+
+
 ## Inciso 6.c
 ¿Qué variables son significativas para explicar el ingreso?
+El gasto y el índice de equipamiento de las viviendas.
 
 ## Inciso 6.d
 ¿Qué porcentaje de la varianza del ingreso es explicada por el modelo?
+Aproximadamente el 90%.
 
 ## Inciso 6.e
 ¿Cómo interpretaría la estimación del coeficiente del gasto?
+El ingreso por trabajo aumenta en $0.9$ unidades dado que el gasto en el hogar aumenta en una unidad. 
 
 ## Inciso 6.f
 ¿Sería mejor ajustar un modelo sin intercepto?
+No hay razones para quitarlo y hacerlo tendría implicaciones en el valor F y el $R^2$.
 
 ## Inciso 6.g
 ¿Se podría afirmar que el índice de vivienda tiene un efecto negativo en el ingreso?
+No, pues el p-value es muy grande.
 
 ## Inciso 6.h
 ¿Qué cambios propondría para mejorar el modelo?
+Podría evaluarse si quitar la variable no significativa $índice de vivienda$ mejora ciertas medidas: $AIC$, $BIC$, $R^2_{adj}$.
 
 ## Inciso 6.i
 Construir la tabla ANOVA con los resultados del ajuste del modelo.
+
+```{r}
+
+rse <-  2524
+n <- 241
+k <- 3
+r2 <- 0.898
+
+SSE = rse^2 * (n-1-k)
+
+SSR = SSE/(1-r2)
+
+SST = SSR + SSE
+
+df_r = k-1
+df_e = n-k   
+
+CMR = SSR/df_r
+  
+CME = SSE/df_e
+
+F_s =  CMR/CME
+
+
+```
+
+
